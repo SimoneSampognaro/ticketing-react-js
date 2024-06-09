@@ -33,3 +33,4 @@ Populate db:
 
 TODO
 - Come identifico ruolo user?
+- Ragionare APIs e iniziare a fare sanitize/validation

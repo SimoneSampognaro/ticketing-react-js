@@ -16,6 +16,8 @@ app.listen(port, () => {
 const dao = require('./dao');
 const userDao = require('./dao-user');
 
+
+// ------------ Test for queries ----------------
 /* dao.listTickets()
   .then(tickets => {
     tickets.forEach(ticket => {
@@ -40,4 +42,24 @@ const userDao = require('./dao-user');
 //dao.listAnswers().then(e => console.log(e));
 //dao.listAnswersByTicket(1).then(e => {console.log(e);}).catch(err => {
 //  console.error('Error:', err.message);});
+
+/*dao.listTicketsByState(false)
+  .then(tickets => {
+    tickets.forEach(ticket => {
+      console.log(ticket.id);
+    });
+  })
+  .catch(err => {
+    console.error('Error:', err);
+  });
+
+  dao.listTicketsByCategory("new feature")
+  .then(tickets => {
+    tickets.forEach(ticket => {
+      console.log(ticket.category);
+    });
+  })
+  .catch(err => {
+    console.error('Error:', err);
+  }); */
 

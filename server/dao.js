@@ -24,6 +24,36 @@ exports.listTickets = () => {
   });
 };
 
+// get tickets filtering by category
+exports.listTicketsByCategory = (category) => {
+  return new Promise((resolve, reject) => {
+    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description FROM Tickets WHERE category = ?';
+    db.all(sql, [category], (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description}));
+      resolve(tickets);
+    });
+  });
+};
+
+// get tickets filtering by state
+exports.listTicketsByState = (state) => {
+  return new Promise((resolve, reject) => {
+    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description FROM Tickets WHERE state = ?';
+    db.all(sql, [state], (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description}));
+      resolve(tickets);
+    });
+  });
+};
+
 // get the ticket identified by {id}
 exports.getTicket = (id) => {
   return new Promise((resolve, reject) => {
@@ -105,3 +135,4 @@ exports.getAnswer = (id) => {
     });
   });
 };
+
