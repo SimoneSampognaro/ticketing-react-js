@@ -1,0 +1,33 @@
+Ticket
+
+ticketId (number)
+state (Open or close, 0 open, 1 closed)
+category (String) (“inquiry”, “maintenance”, “new feature”, “administrative”, “payment”)
+owner (String, username di Users)
+ownerId (number, userId di Users, lo user per inserire deve essere autenticato)
+title (String)
+timestamp (String, hour level precision, necessaria per la parte di estimation, quando la prendo dal server faccio dayjs(date))
+description (String) (non-empty block text)
+answerId (number)(0 or more, userId di Users, da questo poi mi vado a prendere author e timestamp)
+
+Answers
+
+answerId (number)
+answer (String) (non-empty block text)
+author (string)
+authorID (number, userId di Users)
+timestamp (String, hour level precision)
+
+Users
+
+username (string)
+email (string)
+pwd
+userId (number)
+
+
+sqlite3 mydatabase.db < schema.sql
+
+come gestisco nel db? in termini di foreign key !!
+1 ticket <-> 0:N answer
+1 answer <-> 1 ticket
