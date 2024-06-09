@@ -1,32 +1,28 @@
--- Create Ticket table
-CREATE TABLE Ticket (
-    ticketId INTEGER PRIMARY KEY AUTOINCREMENT,
-    state BOOLEAN,
-    category TEXT,
-    owner TEXT REFERENCES User(username),
-    ownerId INTEGER REFERENCES User(userId),
-    title TEXT,
-    timestamp DATETIME,
-    description TEXT,
-    answerId INTEGER,
-    FOREIGN KEY (answerId) REFERENCES Answer(answer_id)
-);
-
-
 -- Create User table
-CREATE TABLE User (
-    userId INTEGER PRIMARY KEY,
+CREATE TABLE Users (
+    userId INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
     email TEXT,
     password TEXT
 );
 
+-- Create Ticket table
+CREATE TABLE Tickets (
+    ticketId INTEGER PRIMARY KEY AUTOINCREMENT,
+    state BOOLEAN,
+    category TEXT,
+    ownerId INTEGER REFERENCES User(userId), -- Owner of the ticket
+    title TEXT,
+    timestamp TEXT,
+    description TEXT
+);
+
 -- Create Answer table
-CREATE TABLE Answer (
+CREATE TABLE Answers (
     answerId INTEGER PRIMARY KEY AUTOINCREMENT,
-    
-    authorId INTEGER,
+    authorId INTEGER REFERENCES User(userId), -- Author of the answer
+    ticketId INTEGER,
+    timestamp TEXT,
     answer TEXT,
-    FOREIGN KEY (ticket_id) REFERENCES Ticket(ticket_id),
-    FOREIGN KEY (user_id) REFERENCES User(user_id)
+    FOREIGN KEY (ticketId) REFERENCES Ticket(ticketId)
 );

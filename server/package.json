@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2"
+    "dayjs": "^1.11.11",
+    "express": "^4.19.2",
+    "sqlite3": "^5.1.7"
   }
 }
