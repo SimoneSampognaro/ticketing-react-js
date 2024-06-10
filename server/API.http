@@ -1,0 +1,32 @@
+GET http://localhost:3001/api/tickets HTTP/1.1
+###
+GET http://localhost:3001/api/tickets/4 HTTP/1.1
+###
+GET http://localhost:3001/api/tickets/6/answers HTTP/1.1
+###
+GET http://localhost:3001/api/answers/1 HTTP/1.1
+###
+POST http://localhost:3001/api/tickets HTTP/1.1
+Content-Type: application/json
+
+{
+    "state": 1, 
+    "category": "payment", 
+    "ownerId": 2, 
+    "title": "Transaction not succesful", 
+    "timestamp": "10-06-2024", 
+    "description": "Not enough money" 
+}
+
+###
+POST http://localhost:3001/api/answers/6 HTTP/1.1
+Content-Type: application/json
+
+{
+    "authorId": 1, 
+    "ticketId": 4, 
+    "timestamp": "10-06-2024", 
+    "answer": "Borrow money!"
+}
+
+###

@@ -12,13 +12,13 @@ const db = new sqlite.Database('ticket.db', (err) => {
 // get all tickets
 exports.listTickets = () => {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description FROM Tickets';
+    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId ';
     db.all(sql, [], (err, rows) => {
       if (err) {
         reject(err);
         return;
       }
-      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description}));
+      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
       resolve(tickets);
     });
   });
@@ -27,13 +27,13 @@ exports.listTickets = () => {
 // get tickets filtering by category
 exports.listTicketsByCategory = (category) => {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description FROM Tickets WHERE category = ?';
+    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId WHERE category = ?';
     db.all(sql, [category], (err, rows) => {
       if (err) {
         reject(err);
         return;
       }
-      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description}));
+      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
       resolve(tickets);
     });
   });
@@ -42,13 +42,13 @@ exports.listTicketsByCategory = (category) => {
 // get tickets filtering by state
 exports.listTicketsByState = (state) => {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description FROM Tickets WHERE state = ?';
+    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId WHERE state = ?';
     db.all(sql, [state], (err, rows) => {
       if (err) {
         reject(err);
         return;
       }
-      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description}));
+      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
       resolve(tickets);
     });
   });
@@ -57,7 +57,7 @@ exports.listTicketsByState = (state) => {
 // get the ticket identified by {id}
 exports.getTicket = (id) => {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description FROM Tickets WHERE ticketId = ?';
+    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId WHERE ticketId = ?';
     db.get(sql, [id], (err, row) => {
       if (err) {
         reject(err);
@@ -74,7 +74,8 @@ exports.getTicket = (id) => {
           ownerId: row.ownerId, 
           title: row.title, 
           timestamp: dayjs(row.timestamp), 
-          description: row.description 
+          description: row.description,
+          username: row.username
         };        
         resolve(ticket);
       }
@@ -102,7 +103,7 @@ exports.listAnswers = () => {
 // get all answers to a given ticket
 exports.listAnswersByTicket = (ticketId) => {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT answerId, authorId, ticketId, timestamp, answer FROM answers WHERE ticketId = ?';
+    const sql = 'SELECT answerId, authorId, ticketId, timestamp, answer, Users.username FROM answers JOIN Users ON Answers.authorId = Users.userId WHERE ticketId = ?';
 
     db.all(sql, [ticketId], (err, rows) => {
       if (err) {
@@ -110,7 +111,7 @@ exports.listAnswersByTicket = (ticketId) => {
         return;
       }
 
-      const answers = rows.map((e) => ({answerId: e.answerId, authorId: e.authorId, ticketId: e.ticketId, timestamp: dayjs(e.timestamp), answer: e.answer}));
+      const answers = rows.map((e) => ({answerId: e.answerId, authorId: e.authorId, ticketId: e.ticketId, timestamp: dayjs(e.timestamp), answer: e.answer, username: e.username}));
       resolve(answers);
     });
   });
@@ -119,7 +120,7 @@ exports.listAnswersByTicket = (ticketId) => {
 // get the answer identified by {id}
 exports.getAnswer = (id) => {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT answerId, authorId, ticketId, timestamp, answer FROM answers WHERE answerId = ?';
+    const sql = 'SELECT answerId, authorId, ticketId, timestamp, answer, Users.username FROM answers JOIN Users ON Answers.authorId = Users.userId WHERE answerId = ?';
     db.get(sql, [id], (err, row) => {
       if (err) {
         reject(err);
@@ -129,9 +130,38 @@ exports.getAnswer = (id) => {
         resolve({error: 'Answer not found.'});
       } else {
         
-        const answer = {answerId: row.answerId, authorId: row.authorId, ticketId: row.ticketId, timestamp: dayjs(row.timestamp), answer: row.answer};
+        const answer = {answerId: row.answerId, authorId: row.authorId, ticketId: row.ticketId, timestamp: dayjs(row.timestamp), answer: row.answer, username: row.username};
         resolve(answer);
       }
+    });
+  });
+};
+
+// add a new ticket, return the newly created object, re-read from DB
+exports.createTicket = (ticket) => {
+  return new Promise((resolve, reject) => {
+    const sql = 'INSERT INTO Tickets(state, category, ownerId, title, timestamp, description) VALUES(?, ?, ?, ?, ?, ?)';
+    db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description], function (err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(exports.getTicket(this.lastID));
+    });
+  });
+};
+
+// add a new answer, return the newly created object, re-read from DB
+exports.createAnswer = (answer) => {
+  return new Promise((resolve, reject) => {
+    console.log(answer);
+    const sql = 'INSERT INTO Answers(authorId, ticketId, timestamp, answer) VALUES(?, ?, ?, ?)';
+    db.run(sql, [answer.authorId, answer.ticketId, answer.timestamp, answer.answer], function (err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(exports.getAnswer(this.lastID));
     });
   });
 };
