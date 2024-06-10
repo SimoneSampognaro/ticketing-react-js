@@ -3,6 +3,7 @@ CREATE TABLE Users (
     userId INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT,
     email TEXT,
+    isAdmin BOOLEAN,
     password TEXT
 );
 

@@ -1,7 +1,7 @@
 -- Insert data into User table
-INSERT INTO Users (username, email, password) VALUES ('user1', 'user1@example.com', 'password1');
-INSERT INTO Users (username, email, password) VALUES ('user2', 'user2@example.com', 'password2');
-INSERT INTO Users (username, email, password) VALUES ('user3', 'user3@example.com', 'password3');
+INSERT INTO Users (username, email, isAdmin, password) VALUES ('user1', 'user1@example.com', 1, 'password1');
+INSERT INTO Users (username, email, isAdmin, password) VALUES ('user2', 'user2@example.com', 0, 'password2');
+INSERT INTO Users (username, email, isAdmin, password) VALUES ('user3', 'user3@example.com', 0, 'password3');
 
 -- Insert data into Ticket table
 INSERT INTO Tickets (state, category, ownerId, title, timestamp, description) 

@@ -32,7 +32,14 @@ Populate db:
 .read populate_data.sql
 
 TODO
-- Come identifico ruolo user? boolean?
-- Ragionare APIs e iniziare a fare sanitize/validation
-- API per filter
-- API per generic visitor? cosi non prendo tutti i dati
+
+- API per generic visitor? cosi non prendo tutti i dati 
+ONLY the title, the date, the owner, the category and the state (open or closed).
+poi conviene quando faccio log in in base a isLoggedIn se è possibile chiamare una query diversa
+- Before/while inserting the comment, the existence of the foreign key value must be checked
+- Escaping is not always possible: for instance, a visual HTML editor that
+must immediately show the result, or some HTML formatting is allowed
+• If input is HTML that needs to be rendered, it must be sanitized before
+allowing the browser to process it
+
+- tabella per filters ?? cosi posso controllare quando faccio get e quando inserisco ticket!

@@ -9,7 +9,7 @@ const db = new sqlite.Database('ticket.db', (err) => {
   if(err) throw err;
 }); 
 
-// get all tickets
+// get all tickets (completed version for logged in users)
 exports.listTickets = () => {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId ';
@@ -24,13 +24,28 @@ exports.listTickets = () => {
   });
 };
 
+// get all tickets (version for generic visitors)
+exports.listTicketsGeneric = () => {
+  return new Promise((resolve, reject) => {
+    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId ';
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), username: e.username}));
+      resolve(tickets);
+    });
+  });
+};
 // get tickets filtering by category
 exports.listTicketsByCategory = (category) => {
   return new Promise((resolve, reject) => {
+    console.log(category);
     const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId WHERE category = ?';
     db.all(sql, [category], (err, rows) => {
       if (err) {
-        reject(err);
+        reject();
         return;
       }
       const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
