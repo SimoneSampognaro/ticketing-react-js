@@ -32,7 +32,7 @@ Populate db:
 .read populate_data.sql
 
 TODO
-- Come identifico ruolo user?
+- Come identifico ruolo user? boolean?
 - Ragionare APIs e iniziare a fare sanitize/validation
-
-- exports.createAnswer non funziona 503
+- API per filter
+- API per generic visitor? cosi non prendo tutti i dati

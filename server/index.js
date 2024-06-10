@@ -101,17 +101,41 @@ app.post('/api/answers/:id', async (req, res) => {
   if (resultQuestion.error)
     res.status(404).json(resultQuestion);   // ticketId does not exist, please insert the question before the answer
   else {
-    const answer = {authorId: req.body.authorId, ticketId: req.body.ticketId, timestamp: req.body.timestamp, answer: req.body.answer};
+    const answer = {authorId: req.body.authorId, ticketId: parseInt(req.params.id), timestamp: req.body.timestamp, answer: req.body.answer};
     //console.log('app.post answer: '+JSON.stringify(answer));
 
     try {
       const newAnswer = await dao.createAnswer(answer);
-      res.json(result);
+      res.json(newAnswer);
     } catch (err) {
       res.status(503).json({ error: `Database error during the creation of answer ${answer.answer} by ${answer.authorId}.` });
     }
   }
 });
+
+// POST /api/tickets/<id>/editState
+app.post('/api/tickets/:id/editState',
+  async (req, res) => {
+
+    const ticketId = parseInt(req.params.id);
+    // Is the id in the body present? If yes, is it equal to the id in the url?
+   /* if (req.body.id && req.body.id !== filmId) {
+      return res.status(422).json({ error: 'URL and body id mismatch' });
+    } */
+
+    try {
+      const ticket = await dao.getTicket(ticketId);
+      if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
+        return res.status(404).json(ticket);
+      ticket.state = req.body.state;  // update state
+      console.log(ticket);
+      const result = await dao.updateTicket(ticketId, ticket);
+      return res.json(result); 
+    } catch (err) {
+      res.status(503).json({ error: `Database error during the favorite update of ticket ${req.params.id}` });
+    }
+  }
+);
 
 
 // Activate the server
