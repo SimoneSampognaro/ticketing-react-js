@@ -2,11 +2,11 @@ GET http://localhost:3001/api/tickets HTTP/1.1
 ###
 GET http://localhost:3001/api/tickets?filter=payment HTTP/1.1
 ###
-GET http://localhost:3001/api/tickets/4 HTTP/1.1
+GET http://localhost:3001/api/tickets/1 HTTP/1.1
 ###
 GET http://localhost:3001/api/tickets/1/answers HTTP/1.1
 ###
-GET http://localhost:3001/api/answers/4 HTTP/1.1
+GET http://localhost:3001/api/answers/1 HTTP/1.1
 ###
 POST http://localhost:3001/api/tickets HTTP/1.1
 Content-Type: application/json
@@ -16,17 +16,17 @@ Content-Type: application/json
     "category": "payment", 
     "ownerId": 1, 
     "title": "Transaction not succesful", 
-    "timestamp": "2024-02-09", 
+    "timestamp": "2024-02-09 06:00", 
     "description": "<b>Sanitize input always!</b><SCRIPT src='file.js' />" 
 }
 
 ###
-POST http://localhost:3001/api/answers/3 HTTP/1.1
+POST http://localhost:3001/api/answers/1 HTTP/1.1
 Content-Type: application/json
 
 {
     "authorId": 1, 
-    "timestamp": "10-06-2024", 
+    "timestamp": "2024-07-01 10:00", 
     "answer": "Borrow money!"
 }
 
@@ -35,7 +35,7 @@ POST http://localhost:3001/api/tickets/1/editState HTTP/1.1
 Content-Type: application/json
 
 {
-    "state": 0
+    "state": 1
 }
 
 ###

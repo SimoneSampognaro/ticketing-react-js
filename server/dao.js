@@ -155,7 +155,8 @@ exports.getAnswer = (id) => {
 // add a new ticket, return the newly created object, re-read from DB
 exports.createTicket = (ticket) => {
   return new Promise((resolve, reject) => {
-    const sql = 'INSERT INTO Tickets(state, category, ownerId, title, timestamp, description) VALUES(?, ?, ?, ?, ?, ?)';
+    ticket.timestamp = dayjs(ticket.timestamp).format();
+    const sql = 'INSERT INTO Tickets(state, category, ownerId, title, timestamp, description) VALUES(?, ?, ?, ?, DATE(?), ?)';
     db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description], function (err) {
       if (err) {
         reject(err);
@@ -170,7 +171,7 @@ exports.createTicket = (ticket) => {
 exports.createAnswer = (answer) => {
   return new Promise((resolve, reject) => {
     console.log(answer);
-    const sql = 'INSERT INTO Answers(authorId, ticketId, timestamp, answer) VALUES(?, ?, ?, ?)';
+    const sql = 'INSERT INTO Answers(authorId, ticketId, timestamp, answer) VALUES(?, ?, DATE(?), ?)';
     db.run(sql, [answer.authorId, answer.ticketId, answer.timestamp, answer.answer], function (err) {
       if (err) {
         reject(err);
@@ -183,7 +184,9 @@ exports.createAnswer = (answer) => {
 
 exports.updateTicket = (id, ticket) => {
   return new Promise((resolve, reject) => {
+    ticket.timestamp = ticket.timestamp.format();
     const sql = 'UPDATE Tickets SET state = ?, category = ?, ownerId = ?, title = ?, timestamp = ?, description = ? WHERE ticketId = ?';
+    console.log(ticket);
     db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description, id], function (err) {
       if (err) {
         reject(err);
@@ -193,6 +196,20 @@ exports.updateTicket = (id, ticket) => {
       } else {
         resolve(exports.getTicket(id)); 
       }
+    });
+  });
+};
+
+exports.listCategories = () => {
+  return new Promise((resolve, reject) => {
+    const sql = 'SELECT * FROM Categories';
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const categories = rows.map((row) => row.category);
+      resolve(categories);
     });
   });
 };

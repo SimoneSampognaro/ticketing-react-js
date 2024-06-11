@@ -29,10 +29,18 @@ const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
 // GET /api/tickets
 app.get('/api/tickets',async (req, res) => {
   try {
-    const result = req.query.filter
-    ? await dao.listTicketsByCategory(req.query.filter)
-    : await dao.listTickets(); 
+    
+    let result = {};
+    if(req.query.filter){ // if defined
+      const categories = await dao.listCategories(); // check if category exists
+      if (!(categories.includes(req.query.filter)))
+        return res.status(406).json(categories);
 
+      result = await dao.listTicketsByCategory(req.query.filter);
+    }
+    else{
+      result = await dao.listTickets(); 
+    }
     if(result.error)
       res.status(404).json(result);
     else
@@ -77,7 +85,7 @@ app.get('/api/tickets/:id', [ check('id').isInt({min: 1}) ] ,async (req, res) =>
 });
 
 // GET /api/tickets/<id>/answers
-// 422 errore in id, 404 ticket not found, 500 internal database error
+// 422 errore in id, 500 internal database error, 404 wrong id
 app.get('/api/tickets/:id/answers',[ check('id').isInt({min: 1}) ] ,async (req, res) => {
 
   const errors = validationResult(req).formatWith(errorFormatter); // format error message
@@ -88,9 +96,9 @@ app.get('/api/tickets/:id/answers',[ check('id').isInt({min: 1}) ] ,async (req, 
   try {
     const ticket = await dao.getTicket(req.params.id);
     if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
-      return res.status(404).json(ticket);
+      return res.status(404).json(ticket); 
 
-    const result = await dao.listAnswersByTicket(req.params.id);
+    const result = await dao.listAnswersByTicket(req.params.id); // se id non esistesse, semplicemente tornebbe un array vuoto, come se non esistessero risposte, in realtà non esiste id
     if(result.error)
       res.status(404).json(result);
     else
@@ -124,13 +132,15 @@ app.get('/api/answers/:id',[ check('id').isInt({min: 1}) ], async (req, res) => 
 });
 
 // POST /api/tickets
-// 422 problem with inputs, 405 ownerId doesnt exist, 500 errore server
+// 422 problem with inputs, 405 ownerId doesnt exist (ritorna "error": "User not found."), 500 errore server, 406 categories doesnt exist (ritorna le categories possibili!)
 app.post('/api/tickets', 
   [
     check('ownerId').isInt({min: 1}), // devo controllare anche se esiste
     check('state').isBoolean(),
-    // only date (first ten chars) and valid ISO 
-    check('timestamp').isLength({min: 10, max: 10}).isISO8601({strict: true}).optional({checkFalsy: true}),
+    check('category').notEmpty(),
+    check('title').notEmpty(),
+    check('description').notEmpty(),
+    check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}).optional({checkFalsy: true}),
   ],
   async (req, res) => {
 
@@ -152,7 +162,9 @@ app.post('/api/tickets',
       if (user.error)
         return res.status(405).json(user);
 
-      // controllo category??
+      const categories = await dao.listCategories(); // check if category exists
+      if (!(categories.includes(req.body.category)))
+        return res.status(406).json(categories);
 
       const result = await dao.createTicket(ticket);
       res.json(result);
@@ -163,13 +175,30 @@ app.post('/api/tickets',
 );
 
 // POST /api/answers/:id
-app.post('/api/answers/:id', async (req, res) => {
+// 422 errore in id, 404 ticketId not found, 500 internal database error, 405 authorId non esiste
+app.post('/api/answers/:id', [
+  check('id').isInt({min: 1}),
+  check('authorId').isInt({min: 1}),
+  check('answer').notEmpty(),
+  check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}).optional({checkFalsy: true}),
+   ],
+   async (req, res) => {
+
+    const errors = validationResult(req).formatWith(errorFormatter); // format error message
+    if (!errors.isEmpty()) {
+        return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
+    }
+
+  const user = await userDao.getUserById(req.body.authorId); // check if user id exists
+  if (user.error)
+      return res.status(405).json(user);
 
   const ticketId = req.params.id; // ticketId
-  console.log(ticketId);
   const resultQuestion = await dao.getTicket(ticketId);  // db consistency: make sure ticketId already exists
   if (resultQuestion.error)
     res.status(404).json(resultQuestion);   // ticketId does not exist, please insert the question before the answer
+
+
   else {
     const answer = {authorId: req.body.authorId, ticketId: parseInt(req.params.id), timestamp: req.body.timestamp, answer: req.body.answer};
     //console.log('app.post answer: '+JSON.stringify(answer));
@@ -184,26 +213,30 @@ app.post('/api/answers/:id', async (req, res) => {
 });
 
 // POST /api/tickets/<id>/editState
-app.post('/api/tickets/:id/editState',
+// 404 ticket not found, 503 database error, 422 errore in input
+app.post('/api/tickets/:id/editState',[
+  check('id').isInt({min: 1}),
+  check('state').isBoolean()
+ ],
   async (req, res) => {
 
+    const errors = validationResult(req).formatWith(errorFormatter); // format error message
+    if (!errors.isEmpty()) {
+        return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
+    }
+
     const ticketId = parseInt(req.params.id);
-    // Is the id in the body present? If yes, is it equal to the id in the url?
-   /* if (req.body.id && req.body.id !== filmId) {
-      return res.status(422).json({ error: 'URL and body id mismatch' });
-    } */
 
     try {
       const ticket = await dao.getTicket(ticketId);
       if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
         return res.status(404).json(ticket);
       ticket.state = req.body.state;  // update state
-      console.log(ticket);
       const result = await dao.updateTicket(ticketId, ticket);
       return res.json(result); 
     } catch (err) {
-      res.status(503).json({ error: `Database error during the favorite update of ticket ${req.params.id}` });
-    }
+      res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
+    } // { error: `Database error during the favorite update of ticket ${req.params.id}` }
   }
 );
 

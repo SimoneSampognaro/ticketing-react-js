@@ -42,6 +42,4 @@ must immediately show the result, or some HTML formatting is allowed
 • If input is HTML that needs to be rendered, it must be sanitized before
 allowing the browser to process it
 
-- tabella per filters/categorie ?? cosi posso controllare quando faccio get e quando inserisco ticket!
-- timestamp deve avere minuti e ore
-- controllare campi che non siano vuoti
+- controllare campi che non siano vuoti e che esistano parametri nel body
