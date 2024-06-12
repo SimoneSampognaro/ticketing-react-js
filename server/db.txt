@@ -43,4 +43,6 @@ must immediately show the result, or some HTML formatting is allowed
 allowing the browser to process it
 
 - controllare campi che non siano vuoti e che esistano parametri nel body
-- controllare che se la stringa non è vuota, non siano spazi!! .trim??
+- controllare che se la stringa non è vuota, non siano spazi!! .trim??  DONE
+- Controllare se mettere dentro try catch, controllare spazi vuoti anche dopo sanitize DONE
+- iniziare front end

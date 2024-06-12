@@ -138,7 +138,7 @@ app.post('/api/tickets',
     check('ownerId').isInt({min: 1}), // devo controllare anche se esiste
     check('state').isBoolean(),
     check('category').notEmpty(),
-    check('title').notEmpty(),
+    check('title').notEmpty(), // lets check also that text fields dont contain only white spaces
     check('description').notEmpty(),
     check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}).optional({checkFalsy: true}),
   ],
@@ -148,6 +148,11 @@ app.post('/api/tickets',
   if (!errors.isEmpty()) {
       return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
   }
+
+    if(req.body.title.trim().length ==0 || DOMPurify.sanitize(req.body.description).length ==0 ){ // category viene già controllata perchè deve appartenere alla tabella
+       return res.status(422).json({error: "Empty text field are not allowed!"});  // description check after sanitize perchè magari l'utente potrebbe avere inserito anche soltanto <script>
+    }
+
     const ticket = { 
       state: req.body.state, 
       category: req.body.category, 
@@ -189,28 +194,25 @@ app.post('/api/answers/:id', [
         return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
     }
 
-  const user = await userDao.getUserById(req.body.authorId); // check if user id exists
-  if (user.error)
-      return res.status(405).json(user);
-
-  const ticketId = req.params.id; // ticketId
-  const resultQuestion = await dao.getTicket(ticketId);  // db consistency: make sure ticketId already exists
-  if (resultQuestion.error)
-    res.status(404).json(resultQuestion);   // ticketId does not exist, please insert the question before the answer
-
-
-  else {
     const answer = {authorId: req.body.authorId, ticketId: parseInt(req.params.id), timestamp: req.body.timestamp, answer: req.body.answer};
     //console.log('app.post answer: '+JSON.stringify(answer));
-
     try {
+      const user = await userDao.getUserById(req.body.authorId); // check if user id exists
+      if (user.error)
+        return res.status(405).json(user);
+
+      const ticketId = req.params.id; // ticketId
+      const resultQuestion = await dao.getTicket(ticketId);  // db consistency: make sure ticketId already exists
+      if (resultQuestion.error)
+        return res.status(404).json(resultQuestion);   // ticketId does not exist, please insert the question before the answer
+
       const newAnswer = await dao.createAnswer(answer);
       res.json(newAnswer);
     } catch (err) {
       res.status(503).json({ error: `Database error during the creation of answer ${answer.answer} by ${answer.authorId}.` });
     }
   }
-});
+);
 
 // POST /api/tickets/<id>/editState
 // 404 ticket not found, 503 database error, 422 errore in input
