@@ -215,9 +215,9 @@ app.post('/api/answers/:id', [
   }
 );
 
-// POST /api/tickets/<id>/editState
+// PUT /api/tickets/<id>/editState
 // 404 ticket not found, 503 database error, 422 errore in input
-app.post('/api/tickets/:id/editState',[
+app.put('/api/tickets/:id/editState',[
   check('id').isInt({min: 1}),
   check('state').isBoolean()
  ],
@@ -243,9 +243,9 @@ app.post('/api/tickets/:id/editState',[
   }
 );
 
-// POST /api/tickets/<id>/editCategory
+// PUT /api/tickets/<id>/editCategory
 // 404 ticket not found, 503 database error, 422 errore in input
-app.post('/api/tickets/:id/editCategory',[
+app.put('/api/tickets/:id/editCategory',[
   check('id').isInt({min: 1}),
   check('category').notEmpty()
  ],

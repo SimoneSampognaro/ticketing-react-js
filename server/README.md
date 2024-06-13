@@ -9,9 +9,9 @@
 `GET /api/answers/<id>`
 `POST /api/tickets` inserire ticket
 `POST /api/answers/<id>` inserire answer, id è del ticket
-`POST /api/tickets/<id>/editState` per chiudere e aprire ticket
+`PUT /api/tickets/<id>/editState` per chiudere e aprire ticket
 `GET /api/tickets/generic` perchè i generic user devono vedere meno informazioni degli user loggati
-`POST /api/tickets/<id>/editCategory` 
+`PUT /api/tickets/<id>/editCategory` 
 
 
 ## Functionality of API

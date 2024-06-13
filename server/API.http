@@ -31,17 +31,17 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3001/api/tickets/6/editState HTTP/1.1
+PUT http://localhost:3001/api/tickets/1/editState HTTP/1.1
 Content-Type: application/json
 
 {
-    "state": 0
+    "state": 1
 }
 
 ###
 GET http://localhost:3001/api/tickets/generic HTTP/1.1
 ###
-POST http://localhost:3001/api/tickets/1/editCategory HTTP/1.1
+PUT http://localhost:3001/api/tickets/1/editCategory HTTP/1.1
 Content-Type: application/json
 
 {
