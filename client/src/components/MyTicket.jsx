@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Badge, Button} from 'react-bootstrap';
+import { Container, Row, Col, Badge, Button, Form} from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { MyAnswerList } from './MyAnswer';
@@ -10,6 +10,12 @@ function MyTicket(props) {
   
   const [answers, setAnswers] = useState([]);
   const [showMore, setShowMore] = useState(false);
+  const [joinConversation, setJoinConversation] = useState(false);
+
+  function showingLess(){ // when user click on show less, i need to remove the answers and also make disappear the form
+    setShowMore(false);
+    setJoinConversation(false);
+  }
   
   useEffect(() => {
     API.getAllAnswersForTicket(ticket.id).then((answerList) => setAnswers(answerList)).catch((err) => console.error(err));
@@ -27,12 +33,12 @@ function MyTicket(props) {
         <Button variant="danger mx-1" size="sm"><i className="bi bi-stopwatch"></i></Button>
         {showMore ? (
         <>
-          <Button variant="warning" size="sm" onClick={() => setShowMore(false)}>
+          <Button variant="secondary" size="sm" onClick={() => showingLess()}>
             Show less
           </Button>
         </>
       ) : (
-        <Button variant="primary" size="sm" onClick={() => setShowMore(true)}>
+        <Button variant="secondary" size="sm" onClick={() => setShowMore(true)}>
           Show more
         </Button>
       )}
@@ -53,6 +59,26 @@ function MyTicket(props) {
       <Row>
         <Col>
         {showMore && <MyAnswerList answers={answers} />}
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          {showMore && !joinConversation && (
+            <Button variant="link" onClick={() => setJoinConversation(true)}>Join the conversation</Button>
+          )}
+          {showMore && joinConversation && (
+            <Form >
+            <Form.Group controlId="formBasicText">
+              <Form.Control type="text" placeholder="Type your answer here" />
+            </Form.Group>
+            <Button variant="dark my-1" type="submit">
+              Submit
+            </Button>
+            <Button variant="secondary my-1 mx-1" onClick={()=>setJoinConversation(false)}>
+              Close
+            </Button>
+          </Form>
+          )}
         </Col>
       </Row>
     </Container>
