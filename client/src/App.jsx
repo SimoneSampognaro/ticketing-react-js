@@ -1,15 +1,48 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
+import { useEffect, useState } from 'react';
+import { Col, Container, Row, Navbar, Button, Spinner, Alert } from 'react-bootstrap';
+import { BrowserRouter, Routes, Route, Outlet, Link, Navigate, useNavigate } from 'react-router-dom'; 
+import { MyHeader } from "./components/MyHeader.jsx";
+import { MyTicket, MyTicketList } from './components/MyTicket.jsx';
+import { CustomRectangle, CustomRectangleHeader} from './components/MyRectangle.jsx';
+import API from './API.js';
+
+  
 function App() {
 
+  const [tickets, setTickets] = useState([]);
+  
+  useEffect(() => {
+    API.getAllTickets().then((ticketList) => setTickets(ticketList)).catch((err) => console.error(err));
+  }, []);
+
   return (
-    <>
-    <p>Ciao</p>
-    </>
-  )
+    <Container fluid>
+        <Row>
+          <Col>
+            <MyHeader/>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+          <CustomRectangleHeader />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+          <CustomRectangle />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+          <MyTicketList tickets={tickets}/>
+          </Col>
+        </Row>
+      </Container>
+  );
 }
 
 export default App
