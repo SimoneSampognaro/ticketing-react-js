@@ -6,8 +6,7 @@ import { useEffect, useState } from 'react';
 import { Col, Container, Row, Navbar, Button, Spinner, Alert } from 'react-bootstrap';
 import { BrowserRouter, Routes, Route, Outlet, Link, Navigate, useNavigate } from 'react-router-dom'; 
 import { MyHeader } from "./components/MyHeader.jsx";
-import { MyTicket, MyTicketList } from './components/MyTicket.jsx';
-import { CustomRectangle, CustomRectangleHeader} from './components/MyRectangle.jsx';
+import { MyTicketList } from './components/MyTicket.jsx';
 import API from './API.js';
 
   
@@ -24,16 +23,6 @@ function App() {
         <Row>
           <Col>
             <MyHeader/>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-          <CustomRectangleHeader />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-          <CustomRectangle />
           </Col>
         </Row>
         <Row>
