@@ -149,7 +149,7 @@ app.post('/api/tickets',
       return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
   }
 
-    if(req.body.title.trim().length ==0 || DOMPurify.sanitize(req.body.description).length ==0 ){ // category viene già controllata perchè deve appartenere alla tabella
+    if(req.body.title.trim().length ==0 || DOMPurify.sanitize(req.body.description, {ALLOWED_TAGS: ['b','i']}).length ==0 ){ // category viene già controllata perchè deve appartenere alla tabella
        return res.status(422).json({error: "Empty text field are not allowed!"});  // description check after sanitize perchè magari l'utente potrebbe avere inserito anche soltanto <script>
     }
 
@@ -180,7 +180,7 @@ app.post('/api/tickets',
 );
 
 // POST /api/answers/:id
-// 422 errore in id, 404 ticketId not found, 500 internal database error, 405 authorId non esiste
+// 422 errore in id, 404 ticketId not found, 500 internal database error, 405 authorId non esiste, 406 ticket chiuso
 app.post('/api/answers/:id', [
   check('id').isInt({min: 1}),
   check('authorId').isInt({min: 1}),
@@ -199,13 +199,14 @@ app.post('/api/answers/:id', [
     try {
       const user = await userDao.getUserById(req.body.authorId); // check if user id exists
       if (user.error)
-        return res.status(405).json(user);
+        return res.status(405).json({error: "User not found"});
 
       const ticketId = req.params.id; // ticketId
-      const resultQuestion = await dao.getTicket(ticketId);  // db consistency: make sure ticketId already exists
-      if (resultQuestion.error)
-        return res.status(404).json(resultQuestion);   // ticketId does not exist, please insert the question before the answer
-
+      const resultTicket = await dao.getTicket(ticketId);  // db consistency: make sure ticketId already exists
+      if (resultTicket.error)
+        return res.status(404).json({error: "Ticket not found"});   // ticketId does not exist, please insert the question before the answer
+      if(!resultTicket.state) // ticket chiuso, non è ammesso risponder
+        return res.status(406).json({error: "Ticket is closed"});
       const newAnswer = await dao.createAnswer(answer);
       res.json(newAnswer);
     } catch (err) {
@@ -234,6 +235,39 @@ app.post('/api/tickets/:id/editState',[
       if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
         return res.status(404).json(ticket);
       ticket.state = req.body.state;  // update state
+      const result = await dao.updateTicket(ticketId, ticket);
+      return res.json(result); 
+    } catch (err) {
+      res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
+    } // { error: `Database error during the favorite update of ticket ${req.params.id}` }
+  }
+);
+
+// POST /api/tickets/<id>/editCategory
+// 404 ticket not found, 503 database error, 422 errore in input
+app.post('/api/tickets/:id/editCategory',[
+  check('id').isInt({min: 1}),
+  check('category').notEmpty()
+ ],
+  async (req, res) => {
+
+    const errors = validationResult(req).formatWith(errorFormatter); // format error message
+    if (!errors.isEmpty()) {
+        return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
+    }
+
+    const ticketId = parseInt(req.params.id);
+
+    try {
+      const categories = await dao.listCategories(); // check if category exists
+      if (!(categories.includes(req.body.category)))
+        return res.status(406).json(categories);
+
+      const ticket = await dao.getTicket(ticketId);
+      if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
+        return res.status(404).json(ticket);
+
+      ticket.category = req.body.category;  // update state
       const result = await dao.updateTicket(ticketId, ticket);
       return res.json(result); 
     } catch (err) {

@@ -17,7 +17,7 @@ Content-Type: application/json
     "ownerId": 1, 
     "title": "Transaction not succesful", 
     "timestamp": "2024-02-09 06:00", 
-    "description": "<b>Sanitize input always!</b><SCRIPT src='file.js' />" 
+    "description": "<i>Sanitize <b>input</b><SCRIPT src='file.js' /> always!</i><SCRIPT src='file.js' /> ciao <i>ciao</i>" 
 }
 
 ###
@@ -40,3 +40,10 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3001/api/tickets/generic HTTP/1.1
+###
+POST http://localhost:3001/api/tickets/1/editCategory HTTP/1.1
+Content-Type: application/json
+
+{
+    "category": "inquiry"
+}

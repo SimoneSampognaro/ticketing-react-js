@@ -9,6 +9,34 @@ const db = new sqlite.Database('ticket.db', (err) => {
   if(err) throw err;
 }); 
 
+
+const convertTicketFromDbRecord = (dbRecord) => {
+  const ticket = { 
+    id: dbRecord.ticketId, 
+    state: dbRecord.state, 
+    category: dbRecord.category, 
+    ownerId: dbRecord.ownerId, 
+    title: dbRecord.title, 
+    timestamp: dayjs(dbRecord.timestamp), 
+    description: dbRecord.description,
+    username: dbRecord.username
+  }; 
+  
+  return ticket;
+};
+
+const convertAnswerFromDbRecord = (dbRecord) => {
+  const answer = {
+    answerId: dbRecord.answerId, 
+    authorId: dbRecord.authorId, 
+    ticketId: dbRecord.ticketId, 
+    timestamp: dayjs(dbRecord.timestamp), 
+    answer: dbRecord.answer
+  };
+
+  return answer;
+};
+
 // get all tickets (completed version for logged in users)
 exports.listTickets = () => {
   return new Promise((resolve, reject) => {
@@ -18,13 +46,15 @@ exports.listTickets = () => {
         reject(err);
         return;
       }
-      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
+      /*const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
+      resolve(tickets);*/
+      const tickets = rows.map((e) => convertTicketFromDbRecord(e));
       resolve(tickets);
     });
   });
 };
 
-// get all tickets (version for generic visitors)
+// get all tickets (version for generic visitors, no description)
 exports.listTicketsGeneric = () => {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId ';
@@ -48,7 +78,9 @@ exports.listTicketsByCategory = (category) => {
         reject();
         return;
       }
-      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
+     /* const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
+      resolve(tickets);*/
+      const tickets = rows.map((e) => convertTicketFromDbRecord(e));
       resolve(tickets);
     });
   });
@@ -63,7 +95,9 @@ exports.listTicketsByState = (state) => {
         reject(err);
         return;
       }
-      const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
+     /* const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
+      resolve(tickets);*/
+      const tickets = rows.map((e) => convertTicketFromDbRecord(e));
       resolve(tickets);
     });
   });
@@ -82,7 +116,7 @@ exports.getTicket = (id) => {
         resolve({error: 'Ticket not found.'});
       } else {
         
-        const ticket = { 
+    /*    const ticket = { 
           id: row.ticketId, 
           state: row.state, 
           category: row.category, 
@@ -91,8 +125,8 @@ exports.getTicket = (id) => {
           timestamp: dayjs(row.timestamp), 
           description: row.description,
           username: row.username
-        };        
-        resolve(ticket);
+        };      */  
+        resolve(convertTicketFromDbRecord(row));
       }
     });
   });
@@ -109,7 +143,9 @@ exports.listAnswers = () => {
         return;
       }
 
-      const answers = rows.map((e) => ({answerId: e.answerId, authorId: e.authorId, ticketId: e.ticketId, timestamp: dayjs(e.timestamp), answer: e.answer}));
+      /*const answers = rows.map((e) => ({answerId: e.answerId, authorId: e.authorId, ticketId: e.ticketId, timestamp: dayjs(e.timestamp), answer: e.answer}));
+      resolve(answers);*/
+      const answers = rows.map((e) => convertAnswerFromDbRecord(e));
       resolve(answers);
     });
   });
@@ -125,8 +161,11 @@ exports.listAnswersByTicket = (ticketId) => {
         reject(err);
         return;
       }
-
+    /*  const prova = rows.map((e) => convertAnswerFromDbRecord(e));
+      console.log(prova);
       const answers = rows.map((e) => ({answerId: e.answerId, authorId: e.authorId, ticketId: e.ticketId, timestamp: dayjs(e.timestamp), answer: e.answer, username: e.username}));
+      resolve(answers);*/
+      const answers = rows.map ((e) => convertAnswerFromDbRecord(e));
       resolve(answers);
     });
   });
@@ -145,8 +184,9 @@ exports.getAnswer = (id) => {
         resolve({error: 'Answer not found.'});
       } else {
         
-        const answer = {answerId: row.answerId, authorId: row.authorId, ticketId: row.ticketId, timestamp: dayjs(row.timestamp), answer: row.answer, username: row.username};
-        resolve(answer);
+       // const answer = {answerId: row.answerId, authorId: row.authorId, ticketId: row.ticketId, timestamp: dayjs(row.timestamp), answer: row.answer, username: row.username};
+        resolve(convertAnswerFromDbRecord(row));
+        
       }
     });
   });

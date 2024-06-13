@@ -46,3 +46,6 @@ allowing the browser to process it
 - controllare che se la stringa non è vuota, non siano spazi!! .trim??  DONE
 - Controllare se mettere dentro try catch, controllare spazi vuoti anche dopo sanitize DONE
 - iniziare front end
+- controllare ticket non chiuso
+
+- change the category of the ticket.
