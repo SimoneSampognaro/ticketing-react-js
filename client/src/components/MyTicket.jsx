@@ -1,22 +1,43 @@
 import React from 'react';
-import { Container, Row, Col, Badge, Button, Card} from 'react-bootstrap';
+import { Container, Row, Col, Badge, Button} from 'react-bootstrap';
+import { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { MyAnswerList } from './MyAnswer';
+import API from '../API';
 
 function MyTicket(props) {
   const ticket = props.ticket;
+  
+  const [answers, setAnswers] = useState([]);
+  const [showMore, setShowMore] = useState(false);
+  
+  useEffect(() => {
+    API.getAllAnswersForTicket(ticket.id).then((answerList) => setAnswers(answerList)).catch((err) => console.error(err));
+  }, []);
 
   return (
     <Container className="my-4">
       {/* First Row */}
       <Row className="bg-dark text-white p-3" style={{ backgroundColor: 'darkblue' }}>
-        <Col>
+        <Col xs={9}>
           <b>{`${ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)} - ${ticket.username}`} </b>
         </Col> 
-        <Col className="text-end">
-          <Button variant="primary" size="sm">Show more</Button>
+        <Col xs={3} className="text-end">
+        <Button variant="warning" size="sm"><i className="bi bi-pencil-square"></i></Button>
+        <Button variant="danger mx-1" size="sm"><i className="bi bi-stopwatch"></i></Button>
+        {showMore ? (
+        <>
+          <Button variant="warning" size="sm" onClick={() => setShowMore(false)}>
+            Show less
+          </Button>
+        </>
+      ) : (
+        <Button variant="primary" size="sm" onClick={() => setShowMore(true)}>
+          Show more
+        </Button>
+      )}
         </Col>
       </Row>
-
       {/* Second Row */}
       <Row className="bg-light text-dark p-3 mt-1" style={{ backgroundColor: 'gray' }}>
       <Col xs={2}>
@@ -31,7 +52,7 @@ function MyTicket(props) {
       </Row>
       <Row>
         <Col>
-        <MyAnswer/>
+        {showMore && <MyAnswerList answers={answers} />}
         </Col>
       </Row>
     </Container>
@@ -39,7 +60,7 @@ function MyTicket(props) {
 }
 
 
-function MyAnswer() {
+/*function MyAnswer() {
   return (
     <Card className='my-1' style={{ height: '6rem' }}>
       <Card.Body >
@@ -54,7 +75,7 @@ function MyAnswer() {
       </Card.Body>
     </Card>
   );
-}
+}*/
 
 function MyTicketList(props) {
 
