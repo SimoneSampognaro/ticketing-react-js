@@ -71,7 +71,6 @@ exports.listTicketsGeneric = () => {
 // get tickets filtering by category
 exports.listTicketsByCategory = (category) => {
   return new Promise((resolve, reject) => {
-    console.log(category);
     const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId WHERE category = ?';
     db.all(sql, [category], (err, rows) => {
       if (err) {
@@ -210,7 +209,7 @@ exports.createTicket = (ticket) => {
 // add a new answer, return the newly created object, re-read from DB
 exports.createAnswer = (answer) => {
   return new Promise((resolve, reject) => {
-    console.log(answer);
+    //console.log(answer);
     const sql = 'INSERT INTO Answers(authorId, ticketId, timestamp, answer) VALUES(?, ?, DATE(?), ?)';
     db.run(sql, [answer.authorId, answer.ticketId, answer.timestamp, answer.answer], function (err) {
       if (err) {
@@ -226,7 +225,6 @@ exports.updateTicket = (id, ticket) => {
   return new Promise((resolve, reject) => {
     ticket.timestamp = ticket.timestamp.format();
     const sql = 'UPDATE Tickets SET state = ?, category = ?, ownerId = ?, title = ?, timestamp = ?, description = ? WHERE ticketId = ?';
-    console.log(ticket);
     db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description, id], function (err) {
       if (err) {
         reject(err);
