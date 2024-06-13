@@ -17,7 +17,7 @@ Content-Type: application/json
     "ownerId": 1, 
     "title": "Transaction not succesful", 
     "timestamp": "2024-02-09 06:00", 
-    "description": "<i>Sanitize <b>input</b><SCRIPT src='file.js' /> always!</i><SCRIPT src='file.js' /> ciao <i>ciao</i>" 
+    "description": 1 
 }
 
 ###

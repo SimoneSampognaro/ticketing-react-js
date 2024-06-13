@@ -139,8 +139,8 @@ app.post('/api/tickets',
     check('state').isBoolean(),
     check('category').notEmpty(),
     check('title').notEmpty(), // lets check also that text fields dont contain only white spaces
-    check('description').notEmpty(),
-    check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}).optional({checkFalsy: true}),
+    check('description').notEmpty().isString(),
+    check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
   ],
   async (req, res) => {
 

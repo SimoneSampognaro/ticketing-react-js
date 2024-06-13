@@ -49,3 +49,4 @@ allowing the browser to process it
 - controllare ticket non chiuso
 
 - change the category of the ticket.
+- controllare siano stringhe isString !!!!!
