@@ -3,6 +3,7 @@
 // git add . ; git commit -m "title" ; git push
 
 const express = require('express');
+const cors = require('cors');
 const morgan = require('morgan');
 const { check, validationResult } = require('express-validator'); // validation middleware
 const createDOMPurify = require('dompurify'); // npm install dompurify jsdom
@@ -11,6 +12,12 @@ const { JSDOM } = require('jsdom');
 // init express
 const app = new express();
 const port = 3001;
+
+const corsOptions = {
+  origin: 'http://localhost:5173',
+};
+
+app.use(cors());
 
 app.use(morgan('dev'));
 app.use(express.json()); // To automatically decode incoming json
@@ -43,8 +50,8 @@ app.get('/api/tickets',async (req, res) => {
     }
     if(result.error)
       res.status(404).json(result);
-    else
-      res.json(result);
+    else           // sort by time backend side
+      res.json(result.sort((a, b) => a.timestamp - b.timestamp));
   } catch(err) {
     console.error(err);
     res.status(500).end();
@@ -101,8 +108,8 @@ app.get('/api/tickets/:id/answers',[ check('id').isInt({min: 1}) ] ,async (req, 
     const result = await dao.listAnswersByTicket(req.params.id); // se id non esistesse, semplicemente tornebbe un array vuoto, come se non esistessero risposte, in realtà non esiste id
     if(result.error)
       res.status(404).json(result);
-    else
-      res.json(result);
+    else     // sorty by decreasing date
+      res.json(result.sort((a, b) => b.timestamp - a.timestamp));
   } catch(err) {
     res.status(500).end();
   }
@@ -137,8 +144,8 @@ app.post('/api/tickets',
   [
     check('ownerId').isInt({min: 1}), // devo controllare anche se esiste
     check('state').isBoolean(),
-    check('category').notEmpty(),
-    check('title').notEmpty(), // lets check also that text fields dont contain only white spaces
+    check('category').notEmpty().isString(),
+    check('title').notEmpty().isString(), // lets check also that text fields dont contain only white spaces
     check('description').notEmpty().isString(),
     check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
   ],
@@ -184,8 +191,8 @@ app.post('/api/tickets',
 app.post('/api/answers/:id', [
   check('id').isInt({min: 1}),
   check('authorId').isInt({min: 1}),
-  check('answer').notEmpty(),
-  check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}).optional({checkFalsy: true}),
+  check('answer').notEmpty().isString(),
+  check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
    ],
    async (req, res) => {
 
@@ -247,7 +254,7 @@ app.put('/api/tickets/:id/editState',[
 // 404 ticket not found, 503 database error, 422 errore in input
 app.put('/api/tickets/:id/editCategory',[
   check('id').isInt({min: 1}),
-  check('category').notEmpty()
+  check('category').notEmpty().isString() // ridondante
  ],
   async (req, res) => {
 

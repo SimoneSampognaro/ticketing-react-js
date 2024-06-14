@@ -50,3 +50,8 @@ allowing the browser to process it
 
 - change the category of the ticket.
 - controllare siano stringhe isString !!!!!
+
+
+- ordinare per time ticket e risposte!
+- post tickets sminchia le ore!!
+- controllare gli orari!

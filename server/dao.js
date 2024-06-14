@@ -30,7 +30,8 @@ const convertAnswerFromDbRecord = (dbRecord) => {
     answerId: dbRecord.answerId, 
     authorId: dbRecord.authorId, 
     ticketId: dbRecord.ticketId, 
-    timestamp: dayjs(dbRecord.timestamp), 
+    timestamp: dayjs(dbRecord.timestamp),
+    username: dbRecord.username,
     answer: dbRecord.answer
   };
 
