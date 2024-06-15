@@ -9,7 +9,7 @@ async function getAllTickets() {
   const response = await fetch(URL+'/tickets');
   const tickets = await response.json();
   if (response.ok) {
-    return tickets.map((e) => ({ id: e.id, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
+    return tickets.map((e) => ({ id: e.id, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp).format('YYYY-MM-DD HH:mm:ss'), description: e.description, username: e.username}));
   } else {
     throw tickets;  // expected to be a json object (coming from the server) with info about the error
   }
@@ -31,7 +31,31 @@ async function getAllAnswersForTicket(id) {
     }
   }
 
+  function addTicket(ticket) {
+    // call  POST /api/tickets
+    return new Promise((resolve, reject) => {
+      fetch(URL+`/tickets`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(Object.assign({}, ticket, {timestamp: dayjs().format('YYYY-MM-DD HH:mm:ss')})),
+      }).then((response) => {
+        if (response.ok) {
+          response.json()
+            .then((id) => resolve(id))
+            .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+        } else {
+          // analyze the cause of error
+          response.json()
+            .then((message) => { reject(message); }) // error message in the response body
+            .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+        }
+      }).catch(() => { reject({ error: "Cannot communicate with the server." }) }); // connection errors
+    });
+  }
+
 const API = {
-    getAllTickets, getAllAnswersForTicket
+    getAllTickets, getAllAnswersForTicket, addTicket
 };
 export default API;

@@ -53,12 +53,12 @@ function MyTicket(props) {
           <b>{ticket.title}</b>
         </Col>
         <Col xs={3} className="text-end"> 
-         <b>{ticket.timestamp.format("HH:mm - MMMM D, YYYY")} </b>
+         <b>{ticket.timestamp} </b>
         </Col>
       </Row>
       <Row>
         <Col>
-        {showMore && <MyAnswerList answers={answers} />}
+        {showMore && <MyAnswerList answers={answers} question={{answer: ticket.description, timestamp: ticket.timestamp, username: ticket.username}}/>}
         </Col>
       </Row>
       <Row>

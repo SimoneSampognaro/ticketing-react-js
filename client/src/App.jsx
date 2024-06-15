@@ -7,6 +7,7 @@ import { Col, Container, Row, Navbar, Button, Spinner, Alert } from 'react-boots
 import { BrowserRouter, Routes, Route, Outlet, Link, Navigate, useNavigate } from 'react-router-dom'; 
 import { MyHeader } from "./components/MyHeader.jsx";
 import { MyTicketList } from './components/MyTicket.jsx';
+import { MyTicketForm } from './components/MyTicketForm.jsx'
 import API from './API.js';
 
   
@@ -16,13 +17,18 @@ function App() {
   
   useEffect(() => {
     API.getAllTickets().then((ticketList) => setTickets(ticketList)).catch((err) => console.error(err));
-  }, []);
+   }, []);
 
   return (
     <Container fluid>
         <Row>
           <Col>
             <MyHeader/>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+          <MyTicketForm ticketId={1} ownerId={1}/>
           </Col>
         </Row>
         <Row>

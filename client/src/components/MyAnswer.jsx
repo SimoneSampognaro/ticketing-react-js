@@ -22,8 +22,9 @@ function MyAnswer(props) {
 
 function MyAnswerList(props) {
 
-    return (
-      <>       
+    return ( // passo prima le informazioni sulla domanda, poi le risposte
+      <>      
+       <MyAnswer answer={props.question}/>  
               {props.answers.map( (e,index) => 
                 <MyAnswer key={index} answer={e}/> )
             }
@@ -31,4 +32,4 @@ function MyAnswerList(props) {
     );
   }
 
-export { MyAnswerList };
+export { MyAnswerList, MyAnswer };
