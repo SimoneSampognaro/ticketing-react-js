@@ -56,3 +56,7 @@ allowing the browser to process it
 - controllare gli orari!
 
 - METTERE DATETIME IN QUERY!!!!!!
+
+- mostrare pop up read only con le info (completare le info)
+- bisogna aggiungere qualcosa per passare ad /add
+- abilitare edit (on line)??

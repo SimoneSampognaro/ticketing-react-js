@@ -21,7 +21,7 @@ const convertTicketFromDbRecord = (dbRecord) => {
     description: dbRecord.description,
     username: dbRecord.username
   }; 
-  console.log(`${ticket.timestamp} inside convert`);
+ // console.log(`${ticket.timestamp} inside convert`);
   return ticket;
 };
 
@@ -30,7 +30,7 @@ const convertAnswerFromDbRecord = (dbRecord) => {
     answerId: dbRecord.answerId, 
     authorId: dbRecord.authorId,
     ticketId: dbRecord.ticketId, 
-    timestamp: dayjs(dbRecord.timestamp).format("YYYY-MM-DD HH:mm"),
+    timestamp: dayjs(dbRecord.timestamp).format("YYYY-MM-DD HH:mm:ss"), 
     username: dbRecord.username,
     answer: dbRecord.answer
   };
@@ -126,7 +126,7 @@ exports.getTicket = (id) => {
           description: row.description,
           username: row.username
         };      */  
-        console.log(`${row.timestamp} inside getTicket`);
+       // console.log(`${row.timestamp} inside getTicket`);
         resolve(convertTicketFromDbRecord(row));
       }
     });
@@ -196,7 +196,7 @@ exports.getAnswer = (id) => {
 // add a new ticket, return the newly created object, re-read from DB
 exports.createTicket = (ticket) => {
   return new Promise((resolve, reject) => {
-    console.log(`${ticket.timestamp} inside db`);
+    //console.log(`${ticket.timestamp} inside db`);
     const sql = 'INSERT INTO Tickets(state, category, ownerId, title, timestamp, description) VALUES(?, ?, ?, ?, DATETIME(?), ?)';
     db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description], function (err) {
       if (err) {
@@ -212,7 +212,7 @@ exports.createTicket = (ticket) => {
 exports.createAnswer = (answer) => {
   return new Promise((resolve, reject) => {
     //answer.timestamp = dayjs(answer.timestamp).format('YYYY-MM-DD HH:mm:ss');;
-    const sql = 'INSERT INTO Answers(authorId, ticketId, timestamp, answer) VALUES(?, ?, DATE(?), ?)';
+    const sql = 'INSERT INTO Answers(authorId, ticketId, timestamp, answer) VALUES(?, ?, DATETIME(?), ?)';
     db.run(sql, [answer.authorId, answer.ticketId, answer.timestamp, answer.answer], function (err) {
       if (err) {
         reject(err);
