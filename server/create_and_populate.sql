@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS Tickets (
     category TEXT,
     ownerId INTEGER, -- Owner of the ticket
     title TEXT,
-    timestamp DATE,
+    timestamp TEXT,
     description TEXT NOT NULL,
     FOREIGN KEY (ownerId) REFERENCES Users(userId),
     FOREIGN KEY (category) REFERENCES Categories(category)
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS Answers (
     answerId INTEGER PRIMARY KEY AUTOINCREMENT,
     authorId INTEGER, -- Author of the answer
     ticketId INTEGER,
-    timestamp DATE,
+    timestamp TEXT,
     answer TEXT NOT NULL,
     FOREIGN KEY (authorId) REFERENCES Users(userId),
     FOREIGN KEY (ticketId) REFERENCES Tickets(ticketId)

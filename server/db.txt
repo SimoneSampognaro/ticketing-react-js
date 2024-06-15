@@ -42,14 +42,13 @@ must immediately show the result, or some HTML formatting is allowed
 • If input is HTML that needs to be rendered, it must be sanitized before
 allowing the browser to process it
 
-- controllare campi che non siano vuoti e che esistano parametri nel body
+- controllare campi che non siano vuoti e che esistano parametri nel body DONE
 - controllare che se la stringa non è vuota, non siano spazi!! .trim??  DONE
 - Controllare se mettere dentro try catch, controllare spazi vuoti anche dopo sanitize DONE
-- iniziare front end
-- controllare ticket non chiuso
 
-- change the category of the ticket.
-- controllare siano stringhe isString !!!!!
+- controllare ticket non chiuso DONE
+- change the category of the ticket. DONE
+- controllare siano stringhe isString !!!!! DONE
 
 
 - ordinare per time ticket e risposte!

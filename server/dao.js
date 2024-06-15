@@ -17,20 +17,20 @@ const convertTicketFromDbRecord = (dbRecord) => {
     category: dbRecord.category, 
     ownerId: dbRecord.ownerId, 
     title: dbRecord.title, 
-    timestamp: dayjs(dbRecord.timestamp), 
+    timestamp: dbRecord.timestamp, 
     description: dbRecord.description,
     username: dbRecord.username
   }; 
-  
+  console.log(`${ticket.timestamp} inside convert`);
   return ticket;
 };
 
 const convertAnswerFromDbRecord = (dbRecord) => {
   const answer = {
     answerId: dbRecord.answerId, 
-    authorId: dbRecord.authorId, 
+    authorId: dbRecord.authorId,
     ticketId: dbRecord.ticketId, 
-    timestamp: dayjs(dbRecord.timestamp),
+    timestamp: dayjs(dbRecord.timestamp).format("YYYY-MM-DD HH:mm"),
     username: dbRecord.username,
     answer: dbRecord.answer
   };
@@ -126,6 +126,7 @@ exports.getTicket = (id) => {
           description: row.description,
           username: row.username
         };      */  
+        console.log(`${row.timestamp} inside getTicket`);
         resolve(convertTicketFromDbRecord(row));
       }
     });
@@ -195,7 +196,7 @@ exports.getAnswer = (id) => {
 // add a new ticket, return the newly created object, re-read from DB
 exports.createTicket = (ticket) => {
   return new Promise((resolve, reject) => {
-    ticket.timestamp = dayjs(ticket.timestamp).format();
+    console.log(`${ticket.timestamp} inside db`);
     const sql = 'INSERT INTO Tickets(state, category, ownerId, title, timestamp, description) VALUES(?, ?, ?, ?, DATE(?), ?)';
     db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description], function (err) {
       if (err) {
@@ -210,7 +211,7 @@ exports.createTicket = (ticket) => {
 // add a new answer, return the newly created object, re-read from DB
 exports.createAnswer = (answer) => {
   return new Promise((resolve, reject) => {
-    //console.log(answer);
+    //answer.timestamp = dayjs(answer.timestamp).format('YYYY-MM-DD HH:mm:ss');;
     const sql = 'INSERT INTO Answers(authorId, ticketId, timestamp, answer) VALUES(?, ?, DATE(?), ?)';
     db.run(sql, [answer.authorId, answer.ticketId, answer.timestamp, answer.answer], function (err) {
       if (err) {

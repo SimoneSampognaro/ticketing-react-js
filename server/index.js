@@ -169,6 +169,7 @@ app.post('/api/tickets',
       description: DOMPurify.sanitize(req.body.description) 
     };
 
+    console.log(ticket.timestamp);
     try {
       const user = await userDao.getUserById(req.body.ownerId); // check if user id exists
       if (user.error)
@@ -179,6 +180,7 @@ app.post('/api/tickets',
         return res.status(406).json(categories);
 
       const result = await dao.createTicket(ticket);
+      console.log(`${result.timestamp} fine query`);
       res.json(result);
     } catch (err) {
       res.status(503).json({ error: `Database error during the creation of new ticket: ${err}` }); 
@@ -191,7 +193,7 @@ app.post('/api/tickets',
 app.post('/api/answers/:id', [
   check('id').isInt({min: 1}),
   check('authorId').isInt({min: 1}),
-  check('answer').notEmpty().isString(),
+  check('answer').notEmpty().isString(), 
   check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
    ],
    async (req, res) => {
@@ -286,5 +288,5 @@ app.put('/api/tickets/:id/editCategory',[
 
 // Activate the server
 app.listen(port, () => {
-  console.log(`qa-server listening at http://localhost:${port}`);
+  console.log(`ticket-server listening at http://localhost:${port}`);
 });
