@@ -147,10 +147,12 @@ app.post('/api/tickets',
     check('category').notEmpty().isString(),
     check('title').notEmpty().isString(), // lets check also that text fields dont contain only white spaces
     check('description').notEmpty().isString(),
-    check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
+    check('timestamp').isLength({min: 19, max: 19}).isISO8601({strict: true}),
   ],
   async (req, res) => {
 
+     // check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
+     // check('timestamp').isDate({format: 'YYYY-MM-DD HH:mm:ss', strictMode: true})
   const errors = validationResult(req).formatWith(errorFormatter); // format error message
   if (!errors.isEmpty()) {
       return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info

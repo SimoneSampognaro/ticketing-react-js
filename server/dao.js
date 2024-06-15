@@ -17,7 +17,7 @@ const convertTicketFromDbRecord = (dbRecord) => {
     category: dbRecord.category, 
     ownerId: dbRecord.ownerId, 
     title: dbRecord.title, 
-    timestamp: dbRecord.timestamp, 
+    timestamp: dayjs(dbRecord.timestamp).format("YYYY-MM-DD HH:mm:ss"), 
     description: dbRecord.description,
     username: dbRecord.username
   }; 
@@ -197,7 +197,7 @@ exports.getAnswer = (id) => {
 exports.createTicket = (ticket) => {
   return new Promise((resolve, reject) => {
     console.log(`${ticket.timestamp} inside db`);
-    const sql = 'INSERT INTO Tickets(state, category, ownerId, title, timestamp, description) VALUES(?, ?, ?, ?, DATE(?), ?)';
+    const sql = 'INSERT INTO Tickets(state, category, ownerId, title, timestamp, description) VALUES(?, ?, ?, ?, DATETIME(?), ?)';
     db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description], function (err) {
       if (err) {
         reject(err);
