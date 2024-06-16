@@ -9,7 +9,18 @@ async function getAllTickets() {
   const response = await fetch(URL+'/tickets');
   const tickets = await response.json();
   if (response.ok) {
-    return tickets.map((e) => ({ id: e.id, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp).format('YYYY-MM-DD HH:mm:ss'), description: e.description, username: e.username}));
+    return tickets.map((e) => ({ id: e.id, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
+  } else {
+    throw tickets;  // expected to be a json object (coming from the server) with info about the error
+  }
+}
+
+async function getAllCategories(){
+  // call  /api/questions
+  const response = await fetch(URL+'/categories');
+  const categories = await response.json();
+  if (response.ok) {
+    return categories;
   } else {
     throw tickets;  // expected to be a json object (coming from the server) with info about the error
   }
@@ -56,6 +67,6 @@ async function getAllAnswersForTicket(id) {
   }
 
 const API = {
-    getAllTickets, getAllAnswersForTicket, addTicket
+    getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories
 };
 export default API;
