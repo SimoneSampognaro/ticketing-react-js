@@ -45,13 +45,13 @@ function MyTicketForm(props) {
         <>
             {errorMsg? <Alert variant='danger my-2' onClose={()=>setErrorMsg('')} dismissible>{errorMsg}</Alert> : false }
             { show && <MyModal handleClose={handleClose} show={show} ticket={ticket} addTicket={props.addTicket}/> }
-            <Form>
-                <Form.Group>
+            <Form className="p-3 bg-light">
+                <Form.Group className="mb-3">
                     <Form.Label><b>Title</b></Form.Label>
                     <Form.Control type="text" name="title" value={title} onChange={(event) => setTitle(event.target.value)} />
                 </Form.Group>
                 
-                <Form.Group>
+                <Form.Group className="mb-3">
                     <Form.Label><b>Category</b></Form.Label>
                     <Form.Select value={category} onChange={(event) => setCategory(event.target.value)}>
                         <option>Choose a category</option>
@@ -61,12 +61,12 @@ function MyTicketForm(props) {
                     </Form.Select>
                 </Form.Group>
 
-                <Form.Group>
+                <Form.Group className="mb-3">
                     <Form.Label><b>Description</b></Form.Label>
                     <Form.Control type="text" name="description" value={description} onChange={(event) => setDescription(event.target.value)} />
                 </Form.Group>
 
-                <div className='my-2'>
+                <div>
                     <Button variant="dark mx-1" onClick={handleShow}>Add</Button>
                     <Button variant='warning' onClick={() => {navigate('/')}}>Cancel</Button>
                 </div>
