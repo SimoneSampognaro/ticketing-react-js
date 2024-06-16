@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Navbar, Container, Button } from 'react-bootstrap';
-c
+import "../index.css";
 
 function MyHeader(props) {
 	return (

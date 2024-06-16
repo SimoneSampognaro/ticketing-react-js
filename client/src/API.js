@@ -22,7 +22,7 @@ async function getAllCategories(){
   if (response.ok) {
     return categories;
   } else {
-    throw tickets;  // expected to be a json object (coming from the server) with info about the error
+    throw categories;  // expected to be a json object (coming from the server) with info about the error
   }
 }
 
