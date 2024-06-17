@@ -56,7 +56,7 @@ function MyTicket(props) {
           <b>{ticket.title}</b>
         </Col>
         <Col xs={3} className="text-end">
-          <b>{ticket.timestamp.format("MMMM-DD YYYY, HH:mm")}</b>
+          <b>{ticket.timestamp.format("MMMM-DD YYYY, HH:mm:ss")}</b>
         </Col>
       </Row>
 

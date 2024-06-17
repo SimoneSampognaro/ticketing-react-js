@@ -13,7 +13,7 @@ function MyAnswer(props) {
             {answer.answer}
           </Card.Text>
           <footer className="blockquote-footer">
-              {answer.timestamp.format("HH:mm - MMMM D, YYYY")}
+              {answer.timestamp.format("HH:mm:ss - MMMM D, YYYY")}
             </footer>
         </Card.Body>
       </Card>
