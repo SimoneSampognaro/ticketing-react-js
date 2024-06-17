@@ -1,18 +1,23 @@
 import React from 'react';
-import { Card } from 'react-bootstrap';
+import { Card, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function MyAnswer(props) {
     const answer = props.answer;
     
-    return (
-      <Card className='my-1' style={{ height: '6rem' }}>
+    return (          
+      <Card className='my-1' style={{ height: '{`${answer.answer.split("\n").length}rem`}' }}>
         <Card.Body >
           <Card.Subtitle className="mb-2 text-muted">{answer.username}</Card.Subtitle>
-          <Card.Text style={{ whiteSpace: 'pre-wrap' }}>
-            {answer.answer}
+          <Card.Text>
+            {answer.answer.split("\n").map((string,index) => (
+                <React.Fragment key={index}>
+                   {string}
+                   <br />
+               </React.Fragment>
+             ))}
           </Card.Text>
-          <footer className="blockquote-footer">
+          <footer className="blockquote-footer my-1">
               {answer.timestamp.format("HH:mm:ss - MMMM D, YYYY")}
             </footer>
         </Card.Body>
