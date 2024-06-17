@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {Form, Button, Alert} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { MyModal } from './MyModal';
+import TextareaAutosize from 'react-textarea-autosize';
 
 function MyTicketForm(props) {
     const navigate = useNavigate();
@@ -61,10 +62,16 @@ function MyTicketForm(props) {
                     </Form.Select>
                 </Form.Group>
 
-                <Form.Group className="mb-3">
-                    <Form.Label><b>Description</b></Form.Label>
-                    <Form.Control type="text" name="description" value={description} onChange={(event) => setDescription(event.target.value)} />
-                </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label><b>Description</b></Form.Label>
+                 <TextareaAutosize
+                    className="form-control" // Bootstrap class for styling
+                    name="description"
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    minRows={3} // Minimum number of rows
+                />
+            </Form.Group>
 
                 <div>
                     <Button variant="dark mx-1" onClick={handleShow}>Add</Button>

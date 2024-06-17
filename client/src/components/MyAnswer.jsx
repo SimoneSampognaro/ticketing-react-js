@@ -9,7 +9,7 @@ function MyAnswer(props) {
       <Card className='my-1' style={{ height: '6rem' }}>
         <Card.Body >
           <Card.Subtitle className="mb-2 text-muted">{answer.username}</Card.Subtitle>
-          <Card.Text>
+          <Card.Text style={{ whiteSpace: 'pre-wrap' }}>
             {answer.answer}
           </Card.Text>
           <footer className="blockquote-footer">
