@@ -21,7 +21,7 @@ const convertTicketFromDbRecord = (dbRecord) => {
     description: dbRecord.description,
     username: dbRecord.username
   }; 
- // console.log(`${ticket.timestamp} inside convert`);
+
   return ticket;
 };
 

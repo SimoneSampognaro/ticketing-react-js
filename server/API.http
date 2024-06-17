@@ -1,5 +1,7 @@
 GET http://localhost:3001/api/tickets HTTP/1.1
 ###
+GET http://localhost:3001/api/categories HTTP/1.1
+###
 GET http://localhost:3001/api/tickets?filter=payment HTTP/1.1
 ###
 GET http://localhost:3001/api/tickets/1 HTTP/1.1

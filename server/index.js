@@ -5,9 +5,8 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const dayjs = require('dayjs');
 const { check, validationResult } = require('express-validator'); // validation middleware
-const createDOMPurify = require('dompurify'); // npm install dompurify jsdom
-const { JSDOM } = require('jsdom');
 
 // init express
 const app = new express();
@@ -24,8 +23,6 @@ app.use(express.json()); // To automatically decode incoming json
 
 const dao = require('./dao');
 const userDao = require('./dao-user');
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window);
 
 const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
   return `${location}[${param}]: ${msg}`;
@@ -51,12 +48,21 @@ app.get('/api/tickets',async (req, res) => {
     if(result.error)
       res.status(404).json(result);
     else           // sort by time backend side
-      res.json(result.sort((a, b) => a.timestamp - b.timestamp));
+      res.json(result.sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp))));
   } catch(err) {
     console.error(err);
     res.status(500).end();
   }
 });
+
+// GET /api/categories
+app.get('/api/categories', 
+  (req, res) => {
+    dao.listCategories()
+      .then(categories => res.json(categories))
+      .catch((err) => res.status(500).json(err)); // always return a json and an error message
+  }
+);
 
 // GET /api/tickets/generic
 app.get('/api/tickets/generic', async (req, res) => {
@@ -109,7 +115,7 @@ app.get('/api/tickets/:id/answers',[ check('id').isInt({min: 1}) ] ,async (req, 
     if(result.error)
       res.status(404).json(result);
     else     // sorty by decreasing date
-      res.json(result.sort((a, b) => b.timestamp - a.timestamp));
+      res.json(result.sort((a, b) => dayjs(a.timestamp).diff(dayjs(b.timestamp))));
   } catch(err) {
     res.status(500).end();
   }
@@ -138,51 +144,44 @@ app.get('/api/answers/:id',[ check('id').isInt({min: 1}) ], async (req, res) => 
   }
 });
 
+
 // POST /api/tickets
-// 422 problem with inputs, 405 ownerId doesnt exist (ritorna "error": "User not found."), 500 errore server, 406 categories doesnt exist (ritorna le categories possibili!)
+// 422 problem with inputs, 500 errore server, 406 categories doesnt exist (ritorna le categories possibili!)
 app.post('/api/tickets', 
   [
-    check('ownerId').isInt({min: 1}), // devo controllare anche se esiste
-    check('state').isBoolean(),
     check('category').notEmpty().isString(),
     check('title').notEmpty().isString(), // lets check also that text fields dont contain only white spaces
     check('description').notEmpty().isString(),
-    check('timestamp').isLength({min: 19, max: 19}).isISO8601({strict: true}),
   ],
   async (req, res) => {
 
-     // check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
-     // check('timestamp').isDate({format: 'YYYY-MM-DD HH:mm:ss', strictMode: true})
+     // timestamp, owner, state set HERE (for now i set ownerId=1, then i will retrieve from req.user.id)
+
   const errors = validationResult(req).formatWith(errorFormatter); // format error message
   if (!errors.isEmpty()) {
       return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
   }
 
-    if(req.body.title.trim().length ==0 || DOMPurify.sanitize(req.body.description, {ALLOWED_TAGS: ['b','i']}).length ==0 ){ // category viene già controllata perchè deve appartenere alla tabella
-       return res.status(422).json({error: "Empty text field are not allowed!"});  // description check after sanitize perchè magari l'utente potrebbe avere inserito anche soltanto <script>
+    if(req.body.title.trim().length == 0 || req.body.description.trim().length == 0){ // category viene già controllata perchè deve appartenere alla tabella
+       return res.status(422).json({error: "Empty text field are not allowed!"}); 
     }
 
     const ticket = { 
-      state: req.body.state, 
+      state: 1,               // set open 
       category: req.body.category, 
-      ownerId: req.body.ownerId, // diventerà ownerId: req.user.id
+      ownerId: 1,          //req.body.ownerId, // diventerà ownerId: req.user.id
       title: req.body.title, 
-      timestamp: req.body.timestamp, 
-      description: DOMPurify.sanitize(req.body.description) 
+      timestamp:  dayjs().format("YYYY-MM-DD HH:mm:ss"), 
+      description: req.body.description
     };
 
-    console.log(ticket.timestamp);
     try {
-      const user = await userDao.getUserById(req.body.ownerId); // check if user id exists
-      if (user.error)
-        return res.status(405).json(user);
 
       const categories = await dao.listCategories(); // check if category exists
       if (!(categories.includes(req.body.category)))
         return res.status(406).json(categories);
 
       const result = await dao.createTicket(ticket);
-      console.log(`${result.timestamp} fine query`);
       res.json(result);
     } catch (err) {
       res.status(503).json({ error: `Database error during the creation of new ticket: ${err}` }); 
@@ -191,27 +190,32 @@ app.post('/api/tickets',
 );
 
 // POST /api/answers/:id
-// 422 errore in id, 404 ticketId not found, 500 internal database error, 405 authorId non esiste, 406 ticket chiuso
+// 422 errore in id, 404 ticketId not found, 500 internal database error, 406 ticket chiuso
 app.post('/api/answers/:id', [
   check('id').isInt({min: 1}),
-  check('authorId').isInt({min: 1}),
-  check('answer').notEmpty().isString(), 
-  check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
+  check('answer').notEmpty().isString(),
    ],
    async (req, res) => {
+    
+    // timestamp and authorId set by backend
 
     const errors = validationResult(req).formatWith(errorFormatter); // format error message
     if (!errors.isEmpty()) {
         return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
     }
 
-    const answer = {authorId: req.body.authorId, ticketId: parseInt(req.params.id), timestamp: req.body.timestamp, answer: req.body.answer};
-    //console.log('app.post answer: '+JSON.stringify(answer));
-    try {
-      const user = await userDao.getUserById(req.body.authorId); // check if user id exists
-      if (user.error)
-        return res.status(405).json({error: "User not found"});
+    if(req.body.answer.trim().length == 0){
+      return res.status(422).json({error: "Empty text field are not allowed!"}); 
+   }
 
+    const answer = {authorId: 1,           // diventerà req.user.id con login
+      ticketId: parseInt(req.params.id),
+      timestamp: dayjs().format("YYYY-MM-DD HH:mm:ss"), 
+      answer: req.body.answer
+    };
+    
+    try {
+ 
       const ticketId = req.params.id; // ticketId
       const resultTicket = await dao.getTicket(ticketId);  // db consistency: make sure ticketId already exists
       if (resultTicket.error)
@@ -292,3 +296,94 @@ app.put('/api/tickets/:id/editCategory',[
 app.listen(port, () => {
   console.log(`ticket-server listening at http://localhost:${port}`);
 });
+
+
+// *************************** TO BE REMOVED ****************************************
+
+// POST /api/tickets
+// 422 problem with inputs, 405 ownerId doesnt exist (ritorna "error": "User not found."), 500 errore server, 406 categories doesnt exist (ritorna le categories possibili!)
+app.post('/api/ticketst', 
+  [
+    check('ownerId').isInt({min: 1}), // devo controllare anche se esiste
+    check('state').isBoolean(),
+    check('category').notEmpty().isString(),
+    check('title').notEmpty().isString(), // lets check also that text fields dont contain only white spaces
+    check('description').notEmpty().isString(),
+    check('timestamp').isLength({min: 19, max: 19}).isISO8601({strict: true}),
+  ],
+  async (req, res) => {
+
+     // check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
+     // check('timestamp').isDate({format: 'YYYY-MM-DD HH:mm:ss', strictMode: true})
+  const errors = validationResult(req).formatWith(errorFormatter); // format error message
+  if (!errors.isEmpty()) {
+      return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
+  }
+
+    if(req.body.title.trim().length ==0 || DOMPurify.sanitize(req.body.description, {ALLOWED_TAGS: ['b','i']}).length ==0 ){ // category viene già controllata perchè deve appartenere alla tabella
+       return res.status(422).json({error: "Empty text field are not allowed!"});  // description check after sanitize perchè magari l'utente potrebbe avere inserito anche soltanto <script>
+    }
+
+    const ticket = { 
+      state: req.body.state, 
+      category: req.body.category, 
+      ownerId: req.body.ownerId, // diventerà ownerId: req.user.id
+      title: req.body.title, 
+      timestamp: req.body.timestamp, 
+      description: DOMPurify.sanitize(req.body.description) 
+    };
+
+    console.log(ticket.timestamp);
+    try {
+      const user = await userDao.getUserById(req.body.ownerId); // check if user id exists
+      if (user.error)
+        return res.status(405).json(user);
+
+      const categories = await dao.listCategories(); // check if category exists
+      if (!(categories.includes(req.body.category)))
+        return res.status(406).json(categories);
+
+      const result = await dao.createTicket(ticket);
+      console.log(`${result.timestamp} fine query`);
+      res.json(result);
+    } catch (err) {
+      res.status(503).json({ error: `Database error during the creation of new ticket: ${err}` }); 
+    }
+  }
+);
+
+// POST /api/answers/:id
+// 422 errore in id, 404 ticketId not found, 500 internal database error, 405 authorId non esiste, 406 ticket chiuso
+app.post('/api/answersS/:id', [
+  check('id').isInt({min: 1}),
+  check('authorId').isInt({min: 1}),
+  check('answer').notEmpty().isString(), 
+  check('timestamp').isLength({min: 16, max: 16}).isISO8601({strict: true}),
+   ],
+   async (req, res) => {
+
+    const errors = validationResult(req).formatWith(errorFormatter); // format error message
+    if (!errors.isEmpty()) {
+        return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
+    }
+
+    const answer = {authorId: req.body.authorId, ticketId: parseInt(req.params.id), timestamp: req.body.timestamp, answer: req.body.answer};
+    //console.log('app.post answer: '+JSON.stringify(answer));
+    try {
+      const user = await userDao.getUserById(req.body.authorId); // check if user id exists
+      if (user.error)
+        return res.status(405).json({error: "User not found"});
+
+      const ticketId = req.params.id; // ticketId
+      const resultTicket = await dao.getTicket(ticketId);  // db consistency: make sure ticketId already exists
+      if (resultTicket.error)
+        return res.status(404).json({error: "Ticket not found"});   // ticketId does not exist, please insert the question before the answer
+      if(!resultTicket.state) // ticket chiuso, non è ammesso risponder
+        return res.status(406).json({error: "Ticket is closed"});
+      const newAnswer = await dao.createAnswer(answer);
+      res.json(newAnswer);
+    } catch (err) {
+      res.status(503).json({ error: `Database error during the creation of answer ${answer.answer} by ${answer.authorId}.` });
+    }
+  }
+);

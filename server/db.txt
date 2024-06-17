@@ -34,13 +34,6 @@ Populate db:
 TODO
 
 - API per generic visitor? cosi non prendo tutti i dati 
-ONLY the title, the date, the owner, the category and the state (open or closed).
-poi conviene quando faccio log in in base a isLoggedIn se è possibile chiamare una query diversa
-- Before/while inserting the comment, the existence of the foreign key value must be checked
-- Escaping is not always possible: for instance, a visual HTML editor that
-must immediately show the result, or some HTML formatting is allowed
-• If input is HTML that needs to be rendered, it must be sanitized before
-allowing the browser to process it
 
 - controllare campi che non siano vuoti e che esistano parametri nel body DONE
 - controllare che se la stringa non è vuota, non siano spazi!! .trim??  DONE
@@ -51,12 +44,26 @@ allowing the browser to process it
 - controllare siano stringhe isString !!!!! DONE
 
 
-- ordinare per time ticket e risposte!
-- post tickets sminchia le ore!!
-- controllare gli orari!
+- ordinare per time ticket e risposte! DONE
+- post tickets sminchia le ore!! DONE
+- controllare gli orari! DONE
 
-- METTERE DATETIME IN QUERY!!!!!!
+- METTERE DATETIME IN QUERY!!!!!! DONE
 
-- mostrare pop up read only con le info (completare le info)
-- bisogna aggiungere qualcosa per passare ad /add
+- mostrare pop up read only con le info (completare le info)  DONE
+- bisogna aggiungere qualcosa per passare ad /add  DONE
 - abilitare edit (on line)??
+- errorMSG sopra add DONE (per ora controllo solo che i testi non siano vuoti)
+- prendere category da server DONE
+
+- categories in useEffect DA SOLE???? se no carico ogni volta dal server
+
+FINAL version
+- when it is first submitted to the system (timestamp creato backend) DONE
+- newlines in the blocks of text when entering the text itself (gestire inserimento newline) DONE
+- year-month-day hour:min:sec DONE
+- Other information will automatically be set by the system upon confirmation: the timestamp, the status (“open”) and the owner (the logged-in user). DONE also for answers
+- A generic visitor of the website can, regardless of its authentication status, see a list of all tickets, sorted by the most recent one (on the basis of the date/time timestamp when it was created)
+- Then, they can select one or more tickets from the list and the ticket items will be expanded to see all the information related to that ticket, i.e., the content of the blocks of text (with date, time,timestamp and  author), displayed in chronological order from the oldest to the newest.
+Ticket dal più recente al meno recente, risposte al ticket dalla meno recente alla più recente DONE
+- add answer DONE
