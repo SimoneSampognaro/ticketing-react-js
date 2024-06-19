@@ -27,8 +27,6 @@ function MyTicketForm(props) {
             username: "Simone Sampognaro" // lo prenderò dal server quando faccio login, insieme a ID
         };
 
-        console.log(newTicket.category);
-
         if (newTicket.title.length == 0) {
             setErrorMsg('Title length cannot be 0');
           } else if (newTicket.category === "" || newTicket.category === "Choose a category") { // it is empty if user doesnt select anything

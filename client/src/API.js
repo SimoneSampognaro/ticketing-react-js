@@ -50,7 +50,7 @@ async function getAllAnswersForTicket(id) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(Object.assign({}, ticket, {timestamp: dayjs().format('YYYY-MM-DD HH:mm:ss')})),
+        body: JSON.stringify(ticket),
       }).then((response) => {
         if (response.ok) {
           response.json()
@@ -64,9 +64,33 @@ async function getAllAnswersForTicket(id) {
         }
       }).catch(() => { reject({ error: "Cannot communicate with the server." }) }); // connection errors
     });
-  }
+}
+
+function addAnswer(answer,ticketId) {
+  // call  POST /api/answers/:ticketId
+  return new Promise((resolve, reject) => {
+    fetch(URL+`/answers/${ticketId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(answer),
+    }).then((response) => {
+      if (response.ok) {
+        response.json()
+          .then((id) => resolve(id))
+          .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+      } else {
+        // analyze the cause of error
+        response.json()
+          .then((message) => { reject(message); }) // error message in the response body
+          .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+      }
+    }).catch(() => { reject({ error: "Cannot communicate with the server." }) }); // connection errors
+  });
+}
 
 const API = {
-    getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories
+    getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories, addAnswer
 };
 export default API;

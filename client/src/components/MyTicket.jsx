@@ -12,18 +12,51 @@ function MyTicket(props) {
   const [answers, setAnswers] = useState([]);
   const [showMore, setShowMore] = useState(false);
   const [joinConversation, setJoinConversation] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [newAnswer, setNewAnswer] = useState("");
+  const [errorMsg, setErrorMsg] = useState('');
+
+
+
+  function deleteFormInformation(){ // quando il form scompare, devo togliere sia la risposta che il messaggio di errore
+    setNewAnswer("");
+    setErrorMsg("");
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (newAnswer.length == 0) { 
+      setErrorMsg("Empty text field are not allowed!");
+    }
+    else{
+      const answer = {
+        answer: newAnswer
+      }
+      deleteFormInformation();
+      API.addAnswer(answer,ticket.id).then(() => setDirty(true)).catch((err) => console.error(err));
+    }
+  };
 
   function showingLess() {
-    // When user clicks on "Show less", remove the answers and hide the form
+    // When user clicks on "Show less", remove the answers, hide the form, delete answer written in form and delete a possible errorMsg
     setShowMore(false);
     setJoinConversation(false);
+    deleteFormInformation();
   }
 
   useEffect(() => {
-    API.getAllAnswersForTicket(ticket.id)
-      .then((answerList) => setAnswers(answerList))
-      .catch((err) => console.error(err));
-  }, []);
+    if(dirty == true){
+      API.getAllAnswersForTicket(ticket.id)
+        .then((answerList) => setAnswers(answerList))
+        .catch((err) => console.error(err));
+      setDirty(false);
+    }    
+  }, [dirty]); // setDirty(true) -> quando utente clicca su show more e quando utente aggiunge risposta
+
+  function addAnswer(answer) {
+    API.addAnswer(answer).then(() => setDirty(true)).catch((err) => console.error(err));
+  }
 
   return (
     <Container className="mb-4"> {/* Add margin-bottom here for spacing */}
@@ -40,7 +73,7 @@ function MyTicket(props) {
               Show less
             </Button>
           ) : (
-            <Button variant="secondary" size="sm" onClick={() => setShowMore(true)}>
+            <Button variant="secondary" size="sm" onClick={() => {setShowMore(true); setDirty(true);}}>
               Show more
             </Button>
           )}
@@ -76,14 +109,16 @@ function MyTicket(props) {
             {!joinConversation ? (
               <Button variant="link" onClick={() => setJoinConversation(true)}>Join the conversation</Button>
             ) : (
-              <Form>
-                <Form.Group controlId="formBasicText">
-                  <Form.Control type="text" placeholder="Type your answer here" />
+              <Form onSubmit={handleSubmit}>
+                <Form.Group>
+                    <Form.Control type="text" name="newAnswer"  placeholder="Type your answer here"
+                                 value={newAnswer} onChange={(event) => setNewAnswer(event.target.value)} />
+                    {errorMsg !== "" && <Form.Label className="text-danger">{errorMsg}</Form.Label>}
                 </Form.Group>
                 <Button variant="dark my-1" type="submit">
                   Submit
                 </Button>
-                <Button variant="secondary my-1 mx-1" onClick={() => setJoinConversation(false)}>
+                <Button variant="secondary my-1 mx-1" onClick={() => {setJoinConversation(false); deleteFormInformation();}}>
                   Close
                 </Button>
               </Form>

@@ -14,17 +14,20 @@ import API from './API.js';
 function AppWithRouter(props) {
 
   const [tickets, setTickets] = useState([]);
-  const [dirty, setDirty] = useState(false);
+  const [dirty, setDirty] = useState(true);
   const [categories, setCagories] = useState([]);
 
   const navigate = useNavigate();
   
   useEffect(() => {
-    API.getAllTickets().then((ticketList) => setTickets(ticketList)).catch((err) => console.error(err));
-    API.getAllCategories().then((categoriesList) => setCagories(categoriesList)).catch((err) => console.error(err));
-   }, [dirty]);
+    if(dirty == true){
+          API.getAllTickets().then((ticketList) => setTickets(ticketList)).catch((err) => console.error(err));
+          API.getAllCategories().then((categoriesList) => setCagories(categoriesList)).catch((err) => console.error(err));
+          setDirty(false);
+    }      
+  }, [dirty]);
 
-   function addTicket(ticket) {
+  function addTicket(ticket) {
     API.addTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => console.error(err));
   }
 
