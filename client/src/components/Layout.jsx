@@ -22,6 +22,17 @@ function AddLayout(props) {
     );
 }
 
+function EditLayout(props) {
+  
+  return(
+    <>
+    {filmToEdit? 
+      <FilmForm editFilm={props.editFilm} filmToEdit={filmToEdit} />
+     : <Navigate to={"/add"} />}
+    </>
+  );
+}
+
 function GenericLayout(props) {
   
     return (

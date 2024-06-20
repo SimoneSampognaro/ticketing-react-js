@@ -18,9 +18,9 @@ function AppWithRouter(props) {
   const [categories, setCagories] = useState([]);
 
   const navigate = useNavigate();
-  
+
   useEffect(() => {
-    if(dirty == true){
+      if(dirty){
           API.getAllTickets().then((ticketList) => setTickets(ticketList)).catch((err) => console.error(err));
           API.getAllCategories().then((categoriesList) => setCagories(categoriesList)).catch((err) => console.error(err));
           setDirty(false);

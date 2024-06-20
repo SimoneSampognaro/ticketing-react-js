@@ -46,7 +46,7 @@ function MyTicket(props) {
   }
 
   useEffect(() => {
-    if(dirty == true){
+    if(dirty){
       API.getAllAnswersForTicket(ticket.id)
         .then((answerList) => setAnswers(answerList))
         .catch((err) => console.error(err));
@@ -54,6 +54,7 @@ function MyTicket(props) {
     }    
   }, [dirty]); // setDirty(true) -> quando utente clicca su show more e quando utente aggiunge risposta
 
+  
   function addAnswer(answer) {
     API.addAnswer(answer).then(() => setDirty(true)).catch((err) => console.error(err));
   }
