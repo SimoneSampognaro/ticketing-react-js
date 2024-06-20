@@ -54,7 +54,7 @@ function MyTicket(props) {
     }    
   }, [dirty]); // setDirty(true) -> quando utente clicca su show more e quando utente aggiunge risposta
 
-  
+  // `/edit/${ticket.id}`
   function addAnswer(answer) {
     API.addAnswer(answer).then(() => setDirty(true)).catch((err) => console.error(err));
   }
@@ -67,8 +67,9 @@ function MyTicket(props) {
           <b>{`${ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)} - ${ticket.username}`}</b>
         </Col>
         <Col xs={3} className="text-end">
-          <Button variant="warning" size="sm"><i className="bi bi-pencil-square"></i></Button>
-          <Button variant="danger mx-1" size="sm"><i className="bi bi-stopwatch"></i></Button>
+         <Link to={`/edit/${ticket.id}`}>
+         <Button variant="warning mx-1" size="sm"><i className="bi bi-pencil-square"></i></Button>
+         </Link>
           {showMore ? (
             <Button variant="secondary" size="sm" onClick={() => showingLess()}>
               Show less
@@ -90,7 +91,7 @@ function MyTicket(props) {
           <b>{ticket.title}</b>
         </Col>
         <Col xs={3} className="text-end">
-          <b>{ticket.timestamp.format("MMMM-DD YYYY, HH:mm:ss")}</b>
+          <b>{ticket.timestamp.format("MMMM DD YYYY, HH:mm:ss")}</b>
         </Col>
       </Row>
 

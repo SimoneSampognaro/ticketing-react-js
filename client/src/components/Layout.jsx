@@ -3,6 +3,7 @@ import { Row, Col, Button, Alert, Toast } from 'react-bootstrap';
 import { Outlet, Link, useParams, Navigate, useLocation } from 'react-router-dom';
 import { MyHeader } from "./MyHeader.jsx";
 import { MyTicketForm } from './MyTicketForm.jsx';
+import { MyTicketEdit } from './MyTicketEdit.jsx';
 
 
 function NotFoundLayout(props) {
@@ -25,12 +26,8 @@ function AddLayout(props) {
 function EditLayout(props) {
   
   return(
-    <>
-    {filmToEdit? 
-      <FilmForm editFilm={props.editFilm} filmToEdit={filmToEdit} />
-     : <Navigate to={"/add"} />}
-    </>
-  );
+    <MyTicketEdit state="1" title="suca" category="payment" description="tusorella" username="ruzia" timestamp="June 20 2024, 20:15:37" categories={props.categories}/>
+    );
 }
 
 function GenericLayout(props) {
@@ -53,4 +50,4 @@ function GenericLayout(props) {
   
 
   
-  export { NotFoundLayout, GenericLayout, AddLayout };
+  export { NotFoundLayout, GenericLayout, AddLayout, EditLayout };

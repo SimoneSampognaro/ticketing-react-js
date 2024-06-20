@@ -7,7 +7,7 @@ import { Col, Container, Row, Navbar, Button, Spinner, Alert } from 'react-boots
 import { BrowserRouter, Routes, Route, Outlet, Link, Navigate, useNavigate } from 'react-router-dom'; 
 import { MyTicketList } from './components/MyTicket.jsx';
 import { MyTicketForm } from './components/MyTicketForm.jsx'
-import { NotFoundLayout, GenericLayout, AddLayout } from './components/Layout.jsx';
+import { NotFoundLayout, GenericLayout, AddLayout, EditLayout } from './components/Layout.jsx';
 import API from './API.js';
 
   
@@ -36,7 +36,8 @@ function AppWithRouter(props) {
         <Routes>
           <Route path="/" element={<GenericLayout/>} >
             <Route index element={ <MyTicketList tickets={tickets}/> } />
-            <Route path="add" element={<AddLayout ownerId={1} addTicket={addTicket} categories={categories}/>} />
+            <Route path="/add" element={<AddLayout ownerId={1} addTicket={addTicket} categories={categories}/>} />
+            <Route path="/edit/:ticketId" element={<EditLayout categories={categories}/>} />
             <Route path="*" element={<NotFoundLayout />} />
           </Route>
         </Routes>

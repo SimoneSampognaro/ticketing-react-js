@@ -5,13 +5,25 @@ import dayjs from "dayjs";
 const URL = 'http://localhost:3001/api';
 
 async function getAllTickets() {
-  // call  /api/questions
+  // call  /api/tickets
   const response = await fetch(URL+'/tickets');
   const tickets = await response.json();
   if (response.ok) {
     return tickets.map((e) => ({ id: e.id, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
   } else {
     throw tickets;  // expected to be a json object (coming from the server) with info about the error
+  }
+}
+
+async function getTicketById(id) {
+  // call  /api/ticket/:id
+  const response = await fetch(URL+`/tickets/${id}`);
+  const ticket = await response.json();
+  if (response.ok) {
+    const e = ticket;
+    return {id: e.id, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username};
+  } else {
+    throw ticket;  // expected to be a json object (coming from the server) with info about the error
   }
 }
 
@@ -27,7 +39,7 @@ async function getAllCategories(){
 }
 
 async function getAllAnswersForTicket(id) {
-    // call  /api/questions
+    // call  /api/tickets/:id/answers
     const response = await fetch(URL+`/tickets/${id}/answers`);
     const answers = await response.json();
     if (response.ok) {
@@ -91,6 +103,6 @@ function addAnswer(answer,ticketId) {
 }
 
 const API = {
-    getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories, addAnswer
+    getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories, addAnswer, getTicketById
 };
 export default API;
