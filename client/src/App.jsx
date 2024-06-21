@@ -37,7 +37,7 @@ function AppWithRouter(props) {
           <Route path="/" element={<GenericLayout/>} >
             <Route index element={ <MyTicketList tickets={tickets}/> } />
             <Route path="/add" element={<AddLayout ownerId={1} addTicket={addTicket} categories={categories}/>} />
-            <Route path="/edit/:ticketId" element={<EditLayout categories={categories}/>} />
+            <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories}/>} />
             <Route path="*" element={<NotFoundLayout />} />
           </Route>
         </Routes>

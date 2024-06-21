@@ -26,7 +26,7 @@ function AddLayout(props) {
 function EditLayout(props) {
   
   return(
-    <MyTicketEdit state="1" title="suca" category="payment" description="tusorella" username="ruzia" timestamp="June 20 2024, 20:15:37" categories={props.categories}/>
+    <MyTicketEdit tickets={props.tickets} state="1" title="suca" category="payment" description="tusorella" username="ruzia" timestamp="June 20 2024, 20:15:37" categories={props.categories}/>
     );
 }
 
