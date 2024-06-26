@@ -70,3 +70,5 @@ Ticket dal più recente al meno recente, risposte al ticket dalla meno recente a
 
 - abilitare API per modifica categoria e stato (controllare se utente admin e utente proprietario ticket)
 devi essere autenticato, poi controllo in base ai campi presenti nel body (category e stato) se puoi fare quella operazione
+
+- Show More -> Logout -> Crash ...
