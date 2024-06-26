@@ -234,9 +234,10 @@ app.post('/api/answers/:id', [
 
 // PUT /api/tickets/<id>/editState
 // 404 ticket not found, 503 database error, 422 errore in input
-app.put('/api/tickets/:id/editState',[
+// Chiamata da admin o proprietari del ticket, controllo che lo stato mandato sia CHIUSO
+app.put('/api/tickets/:id/closeTicket',[
   check('id').isInt({min: 1}),
-  check('state').isBoolean()
+  check('state').isBoolean().custom(value => value === 0)
  ],
   async (req, res) => {
 
@@ -251,7 +252,18 @@ app.put('/api/tickets/:id/editState',[
       const ticket = await dao.getTicket(ticketId);
       if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
         return res.status(404).json(ticket);
-      ticket.state = req.body.state;  // update state
+
+      const userId = 1; // prova closeTicket
+
+      const user = await userDao.getUserById(userId);
+      console.log(user);
+      console.log(`Owner ${ticket.ownerId}`);
+      console.log(!user.isAdmin);
+      console.log(user.id != ticket.ownerId);
+      if(!user.isAdmin && user.userId != ticket.ownerId ) // non sei admin e non sei proprietario
+        return res.status(401).json({error: "Not authorized"});
+      
+      ticket.state = req.body.state;  // user is admin or the owner
       const result = await dao.updateTicket(ticketId, ticket);
       return res.json(result); 
     } catch (err) {
@@ -295,20 +307,27 @@ app.put('/api/tickets/:id/editCategory',[
 
 // PUT /api/tickets/<id>/edit
 // 404 ticket not found, 503 database error, 422 errore in input
+// SUPPONGO CHE QUI CI VADANO SOLO ADMIN
 app.put('/api/tickets/:id/edit',[
   check('id').isInt({min: 1}),
-  check('state').optional().isBoolean(),
-  check('category').optional().notEmpty().isString()
+  check('state').isBoolean(),
+  check('category').notEmpty().isString()
  ],
   async (req, res) => {
 
+    console.log(req.body.category);
+    console.log(req.body.id);
+    console.log(req.body.state);
+
+    const userId = 1; // da togliere
+    
     const errors = validationResult(req).formatWith(errorFormatter); // format error message
     if (!errors.isEmpty()) {
         return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
     }
 
-    if(!req.body.state && !req.body.category)
-      return res.status(422).json({error: "Invalid request"}); // API has nothing to modify
+   /* if(!req.body.state && !req.body.category)
+      return res.status(422).json({error: "Invalid request"}); // API has nothing to modify */
 
     const ticketId = parseInt(req.params.id);
 
@@ -323,19 +342,26 @@ app.put('/api/tickets/:id/edit',[
       if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
         return res.status(404).json(ticket);
 
-      if(userDao.getUserById(req.body.userId).isAdmin){ // sei admin
-        req.body.state ? ticket.state = req.body.state : ticket.state
-        req.body.category ? ticket.category = req.body.category : ticket.category
+      const user = await userDao.getUserById(userId);
+      console.log(user);
+      console.log(`Owner ${ticket.ownerId}`);
+      
+      if(!user.isAdmin){ // non sei admin
+        return res.status(401).json({error: "Not authorized"});
+      } 
+      ticket.state = req.body.state;
+      ticket.category = req.body.category;
+      const result = await dao.updateTicket(ticketId, ticket);
+      return res.json(result);
+      /*
+      else if(ticket.ownerId === req.body.userId && ticket.state && !req.body.state){ // non sei admin, non puoi mandare category, devi essere owner del ticket, ticket deve essere aperto e lo puoi solo chiudere
+        ticket.state = req.body.state  
         const result = await dao.updateTicket(ticketId, ticket);
         return res.json(result);
       }
-      else if(!req.body.category && ticket.ownerId === req.body.userId && ticket.state && !req.body.state){ // non sei admin, non puoi mandare category, devi essere owner del ticket, ticket deve essere aperto e lo puoi solo chiudere
-          const result = await dao.updateTicket(ticketId, ticket);
-          return res.json(result);
-      }
       else
           return res.status(401).json({error: "Not authorized"});
-
+      */
     } catch (err) {
       res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
     } // { error: `Database error during the favorite update of ticket ${req.params.id}` }

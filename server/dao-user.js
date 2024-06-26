@@ -11,7 +11,7 @@ const db = new sqlite.Database('ticket.db', (err) => {
 // get the user identified by {id}
 exports.getUserById = (id) => {
     return new Promise((resolve, reject) => {
-      const sql = 'SELECT username, email FROM Users WHERE UserId = ?';
+      const sql = 'SELECT username, email, isAdmin FROM Users WHERE UserId = ?';
       db.get(sql, [id], (err, row) => {
         if (err) {
           reject(err);

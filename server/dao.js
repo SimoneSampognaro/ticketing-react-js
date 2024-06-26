@@ -225,7 +225,6 @@ exports.createAnswer = (answer) => {
 
 exports.updateTicket = (id, ticket) => {
   return new Promise((resolve, reject) => {
-    ticket.timestamp = ticket.timestamp.format();
     const sql = 'UPDATE Tickets SET state = ?, category = ?, ownerId = ?, title = ?, timestamp = ?, description = ? WHERE ticketId = ?';
     db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description, id], function (err) {
       if (err) {
