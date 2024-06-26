@@ -204,7 +204,7 @@ app.get('/api/answers/:id',[ check('id').isInt({min: 1}) ], async (req, res) => 
 
 // POST /api/tickets
 // 422 problem with inputs, 500 errore server, 406 categories doesnt exist (ritorna le categories possibili!)
-app.post('/api/tickets', 
+app.post('/api/tickets', isLoggedIn,
   [
     check('category').notEmpty().isString(),
     check('title').notEmpty().isString(), // lets check also that text fields dont contain only white spaces
@@ -248,7 +248,8 @@ app.post('/api/tickets',
 
 // POST /api/answers/:id
 // 422 errore in id, 404 ticketId not found, 500 internal database error, 406 ticket chiuso
-app.post('/api/answers/:id', [
+app.post('/api/answers/:id', isLoggedIn,
+  [
   check('id').isInt({min: 1}),
   check('answer').notEmpty().isString(),
    ],
@@ -290,7 +291,8 @@ app.post('/api/answers/:id', [
 // PUT /api/tickets/<id>/editState
 // 404 ticket not found, 503 database error, 422 errore in input
 // Chiamata da admin o proprietari del ticket, controllo che lo stato mandato sia CHIUSO
-app.put('/api/tickets/:id/closeTicket',[
+app.put('/api/tickets/:id/closeTicket', isLoggedIn,
+  [
   check('id').isInt({min: 1}),
   check('state').isBoolean().custom(value => value === 0)
  ],
@@ -308,13 +310,11 @@ app.put('/api/tickets/:id/closeTicket',[
       if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
         return res.status(404).json(ticket);
 
-      const userId = 1; // prova closeTicket
-
-      const user = await userDao.getUserById(userId);
+      const user = await userDao.getUserById(req.user.userId);
       console.log(user);
       console.log(`Owner ${ticket.ownerId}`);
       console.log(!user.isAdmin);
-      console.log(user.id != ticket.ownerId);
+     // console.log(user.id != ticket.ownerId);
       if(!user.isAdmin && user.userId != ticket.ownerId ) // non sei admin e non sei proprietario
         return res.status(401).json({error: "Not authorized"});
       
@@ -329,7 +329,7 @@ app.put('/api/tickets/:id/closeTicket',[
 
 // PUT /api/tickets/<id>/editCategory
 // 404 ticket not found, 503 database error, 422 errore in input
-app.put('/api/tickets/:id/editCategory',[
+/*app.put('/api/tickets/:id/editCategory',[
   check('id').isInt({min: 1}),
   check('category').notEmpty().isString() // ridondante
  ],
@@ -358,12 +358,13 @@ app.put('/api/tickets/:id/editCategory',[
       res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
     } // { error: `Database error during the favorite update of ticket ${req.params.id}` }
   }
-);
+); */
 
 // PUT /api/tickets/<id>/edit
 // 404 ticket not found, 503 database error, 422 errore in input
 // SUPPONGO CHE QUI CI VADANO SOLO ADMIN
-app.put('/api/tickets/:id/edit',[
+app.put('/api/tickets/:id/edit', isLoggedIn,
+  [
   check('id').isInt({min: 1}),
   check('state').isBoolean(),
   check('category').notEmpty().isString()
@@ -373,9 +374,7 @@ app.put('/api/tickets/:id/edit',[
     console.log(req.body.category);
     console.log(req.body.id);
     console.log(req.body.state);
-
-    const userId = 1; // da togliere
-    
+  
     const errors = validationResult(req).formatWith(errorFormatter); // format error message
     if (!errors.isEmpty()) {
         return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
@@ -397,7 +396,7 @@ app.put('/api/tickets/:id/edit',[
       if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
         return res.status(404).json(ticket);
 
-      const user = await userDao.getUserById(userId);
+      const user = await userDao.getUserById(req.user.userId);
       console.log(user);
       console.log(`Owner ${ticket.ownerId}`);
       
