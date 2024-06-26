@@ -224,9 +224,9 @@ app.post('/api/tickets', isLoggedIn,
     }
 
     const ticket = { 
-      state: 1,               // set open 
+      state: 1,            
       category: req.body.category, 
-      ownerId: 1,          //req.body.ownerId, // diventerà ownerId: req.user.id
+      ownerId: req.user.userId,
       title: req.body.title, 
       timestamp:  dayjs().format("YYYY-MM-DD HH:mm:ss"), 
       description: req.body.description
@@ -311,10 +311,6 @@ app.put('/api/tickets/:id/closeTicket', isLoggedIn,
         return res.status(404).json(ticket);
 
       const user = await userDao.getUserById(req.user.userId);
-      console.log(user);
-      console.log(`Owner ${ticket.ownerId}`);
-      console.log(!user.isAdmin);
-     // console.log(user.id != ticket.ownerId);
       if(!user.isAdmin && user.userId != ticket.ownerId ) // non sei admin e non sei proprietario
         return res.status(401).json({error: "Not authorized"});
       
@@ -371,17 +367,10 @@ app.put('/api/tickets/:id/edit', isLoggedIn,
  ],
   async (req, res) => {
 
-    console.log(req.body.category);
-    console.log(req.body.id);
-    console.log(req.body.state);
-  
     const errors = validationResult(req).formatWith(errorFormatter); // format error message
     if (!errors.isEmpty()) {
         return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
     }
-
-   /* if(!req.body.state && !req.body.category)
-      return res.status(422).json({error: "Invalid request"}); // API has nothing to modify */
 
     const ticketId = parseInt(req.params.id);
 
@@ -397,9 +386,6 @@ app.put('/api/tickets/:id/edit', isLoggedIn,
         return res.status(404).json(ticket);
 
       const user = await userDao.getUserById(req.user.userId);
-      console.log(user);
-      console.log(`Owner ${ticket.ownerId}`);
-      
       if(!user.isAdmin){ // non sei admin
         return res.status(401).json({error: "Not authorized"});
       } 
@@ -407,15 +393,6 @@ app.put('/api/tickets/:id/edit', isLoggedIn,
       ticket.category = req.body.category;
       const result = await dao.updateTicket(ticketId, ticket);
       return res.json(result);
-      /*
-      else if(ticket.ownerId === req.body.userId && ticket.state && !req.body.state){ // non sei admin, non puoi mandare category, devi essere owner del ticket, ticket deve essere aperto e lo puoi solo chiudere
-        ticket.state = req.body.state  
-        const result = await dao.updateTicket(ticketId, ticket);
-        return res.json(result);
-      }
-      else
-          return res.status(401).json({error: "Not authorized"});
-      */
     } catch (err) {
       res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
     } // { error: `Database error during the favorite update of ticket ${req.params.id}` }
