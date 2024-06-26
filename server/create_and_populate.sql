@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS Users (
     username TEXT NOT NULL,
     email TEXT NOT NULL,
     isAdmin BOOLEAN,
-    password TEXT NOT NULL
+    hash TEXT NOT NULL,
+	salt TEXT NOT NULL
 );
 
 -- Create Categories table
@@ -45,9 +46,9 @@ CREATE TABLE IF NOT EXISTS Answers (
 );
 
 -- Insert data into User table
-INSERT INTO Users (username, email, isAdmin, password) VALUES ('user1', 'user1@example.com', 1, 'password1');
-INSERT INTO Users (username, email, isAdmin, password) VALUES ('user2', 'user2@example.com', 0, 'password2');
-INSERT INTO Users (username, email, isAdmin, password) VALUES ('user3', 'user3@example.com', 0, 'password3');
+INSERT INTO Users (username, email, isAdmin, hash, salt) VALUES ('user1', 'user1@example.com', 1, '15d3c4fca80fa608dcedeb65ac10eff78d20c88800d016369a3d2963742ea288','72e4eeb14def3b21');
+INSERT INTO Users (username, email, isAdmin, hash, salt) VALUES ('user2', 'user2@example.com', 0, '1d22239e62539d26ccdb1d114c0f27d8870f70d622f35de0ae2ad651840ee58a','a8b618c717683608');
+INSERT INTO Users (username, email, isAdmin, hash, salt) VALUES ('user3', 'user3@example.com', 0, '61ed132df8733b14ae5210457df8f95b987a7d4b8cdf3daf2b5541679e7a0622','e818f0647b4e1fe0');
 
 -- Insert data into Categories table
 INSERT INTO Categories(category) VALUES('inquiry');
