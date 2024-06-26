@@ -67,3 +67,6 @@ FINAL version
 - Then, they can select one or more tickets from the list and the ticket items will be expanded to see all the information related to that ticket, i.e., the content of the blocks of text (with date, time,timestamp and  author), displayed in chronological order from the oldest to the newest.
 Ticket dal più recente al meno recente, risposte al ticket dalla meno recente alla più recente DONE
 - add answer DONE
+
+- abilitare API per modifica categoria e stato (controllare se utente admin e utente proprietario ticket)
+devi essere autenticato, poi controllo in base ai campi presenti nel body (category e stato) se puoi fare quella operazione

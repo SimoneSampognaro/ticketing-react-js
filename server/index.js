@@ -12,6 +12,7 @@ const { check, validationResult } = require('express-validator'); // validation 
 const app = new express();
 const port = 3001;
 
+
 const corsOptions = {
   origin: 'http://localhost:5173',
 };
@@ -90,8 +91,9 @@ app.get('/api/tickets/:id', [ check('id').isInt({min: 1}) ] ,async (req, res) =>
     const result = await dao.getTicket(req.params.id);
     if(result.error)
       res.status(404).json(result); // Ticket not found
-    else
+    else{
       res.json(result);
+    }  
   } catch(err) {
     res.status(500).end();
   }
@@ -285,6 +287,55 @@ app.put('/api/tickets/:id/editCategory',[
       ticket.category = req.body.category;  // update state
       const result = await dao.updateTicket(ticketId, ticket);
       return res.json(result); 
+    } catch (err) {
+      res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
+    } // { error: `Database error during the favorite update of ticket ${req.params.id}` }
+  }
+);
+
+// PUT /api/tickets/<id>/edit
+// 404 ticket not found, 503 database error, 422 errore in input
+app.put('/api/tickets/:id/edit',[
+  check('id').isInt({min: 1}),
+  check('state').optional().isBoolean(),
+  check('category').optional().notEmpty().isString()
+ ],
+  async (req, res) => {
+
+    const errors = validationResult(req).formatWith(errorFormatter); // format error message
+    if (!errors.isEmpty()) {
+        return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
+    }
+
+    if(!req.body.state && !req.body.category)
+      return res.status(422).json({error: "Invalid request"}); // API has nothing to modify
+
+    const ticketId = parseInt(req.params.id);
+
+    try {
+      if(req.body.category){
+        const categories = await dao.listCategories(); // check if category exists
+        if (!(categories.includes(req.body.category)))
+        return res.status(422).json(categories);
+      }
+
+      const ticket = await dao.getTicket(ticketId);
+      if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
+        return res.status(404).json(ticket);
+
+      if(userDao.getUserById(req.body.userId).isAdmin){ // sei admin
+        req.body.state ? ticket.state = req.body.state : ticket.state
+        req.body.category ? ticket.category = req.body.category : ticket.category
+        const result = await dao.updateTicket(ticketId, ticket);
+        return res.json(result);
+      }
+      else if(!req.body.category && ticket.ownerId === req.body.userId && ticket.state && !req.body.state){ // non sei admin, non puoi mandare category, devi essere owner del ticket, ticket deve essere aperto e lo puoi solo chiudere
+          const result = await dao.updateTicket(ticketId, ticket);
+          return res.json(result);
+      }
+      else
+          return res.status(401).json({error: "Not authorized"});
+
     } catch (err) {
       res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
     } // { error: `Database error during the favorite update of ticket ${req.params.id}` }

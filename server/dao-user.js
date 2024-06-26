@@ -20,7 +20,7 @@ exports.getUserById = (id) => {
         if (row == undefined) {
           resolve({error: 'User not found.'});
         } else {
-          const user = { userId: id, username: row.username, email: row.email};
+          const user = { userId: id, username: row.username, email: row.email, isAdmin: row.isAdmin};
           resolve(user);
         }
       });

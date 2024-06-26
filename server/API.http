@@ -49,3 +49,12 @@ Content-Type: application/json
 {
     "category": "inquiry"
 }
+###
+PUT http://localhost:3001/api/tickets/1/edit HTTP/1.1
+Content-Type: application/json
+
+{
+    "category": "inquiry",
+    "state": 0,
+    "userId": 1
+}
