@@ -17,6 +17,10 @@ function MyTicketEdit(props) {
         { name: 'Open', value: '1' },
     ];
 
+    const handleSubmit = () => {
+        props.editTicket({ id: ticketId, category: category, state: radioValue });
+    };
+
     return (
         <Container className="ticket-info my-3 p-3 border rounded">
             <Row className="mb-3">
@@ -109,6 +113,14 @@ function MyTicketEdit(props) {
                                 <strong>Timestamp:</strong><br />
                                 {ticket.timestamp.format("MMMM DD YYYY, HH:mm:ss")}
                             </div>
+                        </Col>
+                    </Row>
+
+                    <Row className="mb-3">
+                        <Col>
+                            <Button variant="dark" onClick={handleSubmit}>
+                                Save Changes
+                            </Button>
                         </Col>
                     </Row>
                 </>

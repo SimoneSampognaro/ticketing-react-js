@@ -21,10 +21,10 @@ function MyTicketForm(props) {
         const newTicket = { 
             state: 1, 
             category: category, 
-            ownerId: props.ownerId, // sto passando 1
+            ownerId: props.user.userId, 
             title: title.trim(),  
             description: description.trim(),
-            username: "Simone Sampognaro" // lo prenderò dal server quando faccio login, insieme a ID
+            username: props.user.username
         };
 
         if (newTicket.title.length == 0) {

@@ -4,7 +4,7 @@ import { Outlet, Link, useParams, Navigate, useLocation } from 'react-router-dom
 import { MyHeader } from "./MyHeader.jsx";
 import { MyTicketForm } from './MyTicketForm.jsx';
 import { MyTicketEdit } from './MyTicketEdit.jsx';
-
+import { LoginForm } from './Auth';
 
 function NotFoundLayout(props) {
     return (
@@ -19,14 +19,24 @@ function NotFoundLayout(props) {
 
 function AddLayout(props) {
     return (
-      <MyTicketForm addTicket={props.addTicket} ownerId={props.ownerId} categories={props.categories}/>
+      <MyTicketForm addTicket={props.addTicket} categories={props.categories} user={props.user}/>
     );
+}
+
+function LoginLayout(props) {
+  return (
+    <Row>
+      <Col>
+        <LoginForm loginSuccessful={props.loginSuccessful} login={props.login}/>
+      </Col>
+    </Row>
+  );
 }
 
 function EditLayout(props) {
   
   return(
-    <MyTicketEdit tickets={props.tickets} state="1" title="suca" category="payment" description="tusorella" username="ruzia" timestamp="June 20 2024, 20:15:37" categories={props.categories}/>
+    <MyTicketEdit tickets={props.tickets} state="1" title="suca" category="payment" description="tusorella" username="ruzia" timestamp="June 20 2024, 20:15:37" categories={props.categories} editTicket={props.editTicket}/>
     );
 }
 
@@ -36,7 +46,7 @@ function GenericLayout(props) {
         <>
         <Row>
           <Col>
-            <MyHeader/>
+            <MyHeader loggedIn={props.loggedIn} user={props.user} logout={props.logout}/>
           </Col>
         </Row>
         <Row>
@@ -50,4 +60,4 @@ function GenericLayout(props) {
   
 
   
-  export { NotFoundLayout, GenericLayout, AddLayout, EditLayout };
+  export { NotFoundLayout, GenericLayout, AddLayout, EditLayout, LoginLayout };

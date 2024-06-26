@@ -7,39 +7,106 @@ import { Col, Container, Row, Navbar, Button, Spinner, Alert } from 'react-boots
 import { BrowserRouter, Routes, Route, Outlet, Link, Navigate, useNavigate } from 'react-router-dom'; 
 import { MyTicketList } from './components/MyTicket.jsx';
 import { MyTicketForm } from './components/MyTicketForm.jsx'
-import { NotFoundLayout, GenericLayout, AddLayout, EditLayout } from './components/Layout.jsx';
+import { NotFoundLayout, GenericLayout, AddLayout, EditLayout, LoginLayout} from './components/Layout.jsx';
 import API from './API.js';
 
   
 function AppWithRouter(props) {
 
+  // This state keeps track if the user is currently logged-in.
+  const [loggedIn, setLoggedIn] = useState(false);
+  // This state contains the user's info.
+  const [user, setUser] = useState({});
+
   const [tickets, setTickets] = useState([]);
   const [dirty, setDirty] = useState(true);
-  const [categories, setCagories] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const navigate = useNavigate();
 
+  useEffect(()=> {
+    const checkAuth = async() => {
+      try {
+        // here you have the user info, if already logged in
+        const user = await API.getUserInfo();
+        setLoggedIn(true);
+        setUser(user);
+      } catch(err) {
+        // NO need to do anything: user is simply not yet authenticated
+        //handleError(err);
+      }
+    };
+    checkAuth();
+  }, []);  // The useEffect callback is called only the first time the component is mounted.
+
   useEffect(() => {
-      if(dirty){
-          API.getAllTickets().then((ticketList) => setTickets(ticketList)).catch((err) => console.error(err));
-          API.getAllCategories().then((categoriesList) => setCagories(categoriesList)).catch((err) => console.error(err));
-          setDirty(false);
-    }      
-  }, [dirty]);
+    const fetchTickets = async () => {
+      try {
+        if (loggedIn && dirty) {
+          const fullTicketList = await API.getAllTickets();
+          setTickets(fullTicketList);
+        } else if (!loggedIn && dirty) {
+          const categoriesList = await API.getAllCategories();
+          setCategories(categoriesList);
+          const genericTicketList = await API.getAllTicketsGeneric();
+          setTickets(genericTicketList);
+        }
+        setDirty(false);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchTickets(); 
+  }, [dirty, loggedIn]);
 
   function addTicket(ticket) {
     API.addTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => console.error(err));
   }
 
+  function editTicket(ticket){
+    API.editTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => console.error(err));
+  }
+
+  function closeTicket(ticket){
+    API.closeTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => console.error(err));
+  }
+
+  const doLogOut = async () => {
+    await API.logOut();
+    setLoggedIn(false);
+    setUser({});
+    setDirty(true);
+    navigate("/");
+    /* set state to empty if appropriate */
+  }
+
+  const handleLogin = async (credentials) => {
+    try {
+      const user = await API.logIn(credentials);
+      setUser(user);
+      setLoggedIn(true);
+      setDirty(true);
+    } catch (err) {
+      // error is handled and visualized in the login form, do not manage error, throw it
+      throw err;
+    }
+  };
+
+  /*function handleLogin(credentials){
+    API.logIn(credentials).then(user => loginSuccessful(user)).catch((err) => console.error(err));
+  }*/
+
   return (
     <Container fluid>
         <Routes>
-          <Route path="/" element={<GenericLayout/>} >
-            <Route index element={ <MyTicketList tickets={tickets}/> } />
-            <Route path="/add" element={<AddLayout ownerId={1} addTicket={addTicket} categories={categories}/>} />
-            <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories}/>} />
+          <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut}/>} >
+            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn}/> } />
+            <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user}/>} />
+            <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />
             <Route path="*" element={<NotFoundLayout />} />
           </Route>
+          <Route path="/login" element={<LoginLayout login={handleLogin} />} />
         </Routes>
       </Container>
   );  
