@@ -87,7 +87,23 @@ app.use(passport.session());
 /*** APIs ***/
 
 // GET /api/tickets
-app.get('/api/tickets',async (req, res) => {
+app.get('/api/tickets', isLoggedIn, async (req, res) => {
+  try {
+  
+  const result = await dao.listTickets(); 
+  if(result.error)
+      res.status(404).json(result);
+  else           // sort by time backend side
+      res.json(result.sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp))));
+  } catch(err) {
+    console.error(err);
+    res.status(500).end();
+  }
+});
+
+
+
+/* app.get('/api/tickets', async (req, res) => {
   try {
     
     let result = {};
@@ -109,10 +125,10 @@ app.get('/api/tickets',async (req, res) => {
     console.error(err);
     res.status(500).end();
   }
-});
+}); */
 
 // GET /api/categories
-app.get('/api/categories', 
+app.get('/api/categories',
   (req, res) => {
     dao.listCategories()
       .then(categories => res.json(categories))
@@ -127,7 +143,7 @@ app.get('/api/tickets/generic', async (req, res) => {
     if(result.error)
       res.status(404).json(result);
     else
-      res.json(result);
+      res.json(result.sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp))));
   } catch(err) {
     res.status(500).end();
   }
