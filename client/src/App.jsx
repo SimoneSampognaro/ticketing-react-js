@@ -21,7 +21,8 @@ function AppWithRouter(props) {
   const [tickets, setTickets] = useState([]);
   const [dirty, setDirty] = useState(true);
   const [categories, setCategories] = useState([]);
-
+  const [hasLoggedOut, setHasLoggedOut] = useState(false); // New state for logout tracking
+  
   const navigate = useNavigate();
 
   useEffect(()=> {
@@ -77,6 +78,7 @@ function AppWithRouter(props) {
     setLoggedIn(false);
     setUser({});
     setDirty(true);
+    setHasLoggedOut(true); // Set logout state to true
     navigate("/");
     /* set state to empty if appropriate */
   }
@@ -87,6 +89,7 @@ function AppWithRouter(props) {
       setUser(user);
       setLoggedIn(true);
       setDirty(true);
+      setHasLoggedOut(false);
     } catch (err) {
       // error is handled and visualized in the login form, do not manage error, throw it
       throw err;
@@ -101,7 +104,7 @@ function AppWithRouter(props) {
     <Container fluid>
         <Routes>
           <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut}/>} >
-            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn}/> } />
+            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} /> } />
             <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user}/>} />
             <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />
             <Route path="*" element={<NotFoundLayout />} />

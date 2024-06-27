@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { MyAnswerList } from './MyAnswer';
+import TextareaAutosize from 'react-textarea-autosize';
 import API from '../API';
 
 function MyTicket(props) {
@@ -15,11 +16,6 @@ function MyTicket(props) {
   const [dirty, setDirty] = useState(false);
   const [newAnswer, setNewAnswer] = useState("");
   const [errorMsg, setErrorMsg] = useState('');
-
-  function deleteFormInformation() {
-    setNewAnswer("");
-    setErrorMsg("");
-  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -35,11 +31,21 @@ function MyTicket(props) {
     }
   };
 
-  function showingLess() {
+  function deleteFormInformation() {
+    setNewAnswer("");
+    setErrorMsg("");
+  }
+
+  const showingLess = () => {
     setShowMore(false);
     setJoinConversation(false);
     deleteFormInformation();
-  }
+  };
+
+  const showingMore = () => {
+    setShowMore(true); 
+    setDirty(true);
+  };
 
   useEffect(() => {
     if (dirty) {
@@ -48,7 +54,15 @@ function MyTicket(props) {
         .catch((err) => console.error(err));
       setDirty(false);
     }
-  }, [dirty, ticket.id]);
+  }, [dirty]);
+
+  // Reset answers when user logs out
+  useEffect(() => {
+    if (props.hasLoggedOut) {
+      setAnswers([]);
+      showingLess();
+    }
+  }, [props.hasLoggedOut]);
 
   return (
     <Container className="mb-4"> {/* Add margin-bottom here for spacing */}
@@ -68,11 +82,11 @@ function MyTicket(props) {
           )}
           {props.loggedIn && (
             showMore ? (
-              <Button variant="secondary" size="sm" onClick={() => showingLess()}>
+              <Button variant="secondary" size="sm" onClick={showingLess}>
                 Show less
               </Button>
             ) : (
-              <Button variant="secondary" size="sm" onClick={() => { setShowMore(true); setDirty(true); }}>
+              <Button variant="secondary" size="sm" onClick={showingMore}>
                 Show more
               </Button>
             )
@@ -94,7 +108,7 @@ function MyTicket(props) {
       </Row>
 
       {/* Answer List */}
-      {showMore && (
+      {showMore && !props.hasLoggedOut && (
         <Row>
           <Col>
             <MyAnswerList answers={answers} question={{ answer: ticket.description, timestamp: ticket.timestamp, username: ticket.username }} />
@@ -111,13 +125,17 @@ function MyTicket(props) {
             ) : (
               <Form onSubmit={handleSubmit}>
                 <Form.Group>
-                  <Form.Control type="text" name="newAnswer" placeholder="Type your answer here"
-                    value={newAnswer} onChange={(event) => setNewAnswer(event.target.value)} />
-                  {errorMsg !== "" && <Form.Label className="text-danger">{errorMsg}</Form.Label>}
+                  <TextareaAutosize
+                    className="form-control"
+                    placeholder="Type your answer here"
+                    name="newAnswer"
+                    value={newAnswer}
+                    onChange={(event) => setNewAnswer(event.target.value)}
+                    minRows={3}
+                  />
+                  {errorMsg && <Form.Label className="text-danger">{errorMsg}</Form.Label>}
                 </Form.Group>
-                <Button variant="dark my-1" type="submit">
-                  Submit
-                </Button>
+                <Button variant="dark my-1" type="submit">Submit</Button>
                 <Button variant="secondary my-1 mx-1" onClick={() => { setJoinConversation(false); deleteFormInformation(); }}>
                   Close
                 </Button>
@@ -145,7 +163,7 @@ function MyTicketList(props) {
       )}
       {/* Ticket List */}
       {props.tickets.map((e, index) => (
-        <MyTicket key={index} ticket={e} closeTicket={props.closeTicket} user={props.user} loggedIn={props.loggedIn}/>
+        <MyTicket key={index} ticket={e} closeTicket={props.closeTicket} user={props.user} loggedIn={props.loggedIn} hasLoggedOut={props.hasLoggedOut}/>
       ))}
     </Container>
   );
