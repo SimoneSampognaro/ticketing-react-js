@@ -5,7 +5,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function MyAnswer(props) {
     const answer = props.answer;
     
-    return (          
+    if (!answer || !answer.answer) {
+      return null; // or return some fallback UI
+    }
+    return (         
       <Card className='my-1' style={{ height: '{`${answer.answer.split("\n").length}rem`}' }}>
         <Card.Body >
           <Card.Subtitle className="mb-2 text-muted">{answer.username}</Card.Subtitle>
@@ -26,7 +29,9 @@ function MyAnswer(props) {
 }
 
 function MyAnswerList(props) {
-
+  if (!props.question || !props.answers) {
+    return null; // or return some fallback UI
+  }
     return ( // passo prima le informazioni sulla domanda, poi le risposte
       <>      
        <MyAnswer answer={props.question}/>  
