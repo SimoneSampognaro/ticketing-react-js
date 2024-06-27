@@ -5,9 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function MyAnswer(props) {
     const answer = props.answer;
     
-  /*  if (!answer || !answer.answer) {
-      return null; // or return some fallback UI
-    }*/
     return (         
       <Card className='my-1' style={{ height: '{`${answer.answer.split("\n").length}rem`}' }}>
         <Card.Body >

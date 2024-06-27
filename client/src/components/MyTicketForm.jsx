@@ -23,20 +23,20 @@ function MyTicketForm(props) {
             category: category, 
             ownerId: props.user.userId, 
             title: title.trim(),  
-            description: description.trim(),
+            description: description,
             username: props.user.username
         };
 
         if (newTicket.title.length == 0) {
             setErrorMsg('Title length cannot be 0');
-          } else if (newTicket.category === "" || newTicket.category === "Choose a category") { // it is empty if user doesnt select anything
+        } else if (newTicket.category === "" || newTicket.category === "Choose a category") {
             setErrorMsg('Select a category');
-          } else if (newTicket.description.length == 0) {
-            setErrorMsg('Description length cannot be 0');
-        } else{
-          setTicket(newTicket);
-          setShow(true);
-        }  
+        } else if (newTicket.description.trim().length == 0) {
+            setErrorMsg('Description cannot be empty or just new lines');
+        } else {
+            setTicket(newTicket);
+            setShow(true);
+        }
     }
 
     // The Form.Select component has an onChange handler that updates the category state when the user selects a different category.

@@ -36,7 +36,7 @@ function LoginLayout(props) {
 function EditLayout(props) {
   
   return(
-    <MyTicketEdit tickets={props.tickets} state="1" title="suca" category="payment" description="tusorella" username="ruzia" timestamp="June 20 2024, 20:15:37" categories={props.categories} editTicket={props.editTicket}/>
+    <MyTicketEdit tickets={props.tickets} categories={props.categories} editTicket={props.editTicket}/>
     );
 }
 
