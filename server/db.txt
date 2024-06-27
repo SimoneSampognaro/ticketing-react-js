@@ -72,3 +72,10 @@ Ticket dal più recente al meno recente, risposte al ticket dalla meno recente a
 devi essere autenticato, poi controllo in base ai campi presenti nel body (category e stato) se puoi fare quella operazione
 
 - Show More -> Logout -> Crash ...
+- mostrare bottoni (join conversation solo se ticket aperto) e bottone edit solo se sei admin DONE
+- Quando ticket è chiuso, far vedere a schermo che non puoi aggiungere una risposta DONE
+
+- mostrare bottone per chiudere ticket solo se admin o propietario
+- controllare come stampare errori a schermo
+- mostrare errore in edit (componente error definito se app setta Error???)
+- secondo server

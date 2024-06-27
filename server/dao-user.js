@@ -35,7 +35,7 @@ exports.getUser = (email, password) => {
       if (err) { reject(err); }
       else if (row === undefined) { resolve(false); }
       else {
-        const user = {userId: row.userId, username: row.username, email: row.email};
+        const user = {userId: row.userId, username: row.username, email: row.email, isAdmin: row.isAdmin};
         
         const salt = row.salt;
         crypto.scrypt(password, salt, 32, (err, hashedPassword) => {

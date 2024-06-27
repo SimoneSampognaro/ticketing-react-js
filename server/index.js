@@ -282,7 +282,7 @@ app.post('/api/answers/:id', isLoggedIn,
       return res.status(422).json({error: "Empty text field are not allowed!"}); 
    }
 
-    const answer = {authorId: 1,           // diventerà req.user.id con login
+    const answer = {authorId: req.user.userId,         
       ticketId: parseInt(req.params.id),
       timestamp: dayjs().format("YYYY-MM-DD HH:mm:ss"), 
       answer: req.body.answer
