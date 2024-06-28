@@ -449,7 +449,6 @@ app.get('/api/sessions/current', (req, res) => {  if(req.isAuthenticated()) {
 // GET /api/auth-token
 app.get('/api/auth-token', isLoggedIn, (req, res) => {
   let authLevel = req.user.isAdmin ? "admin" : "normal"; // avoid bit flip attack
-  console.log("Ciao");
   const payloadToSign = { access: authLevel, authId: 1234 };
   const jwtToken = jsonwebtoken.sign(payloadToSign, jwtSecret, {expiresIn: expireTime});
 
@@ -509,7 +508,6 @@ app.post('/api/ticketst',
         return res.status(406).json(categories);
 
       const result = await dao.createTicket(ticket);
-      console.log(`${result.timestamp} fine query`);
       res.json(result);
     } catch (err) {
       res.status(503).json({ error: `Database error during the creation of new ticket: ${err}` }); 

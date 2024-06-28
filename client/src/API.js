@@ -216,7 +216,6 @@ async function getAuthToken() {
     credentials: 'include'
   });
   const token = await response.json();
-  console.log("ei");
   if (response.ok) {
     return token;
   } else {
@@ -236,7 +235,7 @@ async function getEstimation(authToken, ticket) {
   });
   const info = await response.json();
   if (response.ok) {
-    return info;
+    return info.estimation;
   } else {
     throw info;  // expected to be a json object (coming from the server) with info about the error
   }

@@ -18,6 +18,7 @@ function MyTicket(props) {
   const [dirty, setDirty] = useState(false);
   const [newAnswer, setNewAnswer] = useState("");
   const [errorMsg, setErrorMsg] = useState('');
+  const [estimation, setEstimation] = useState("");
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -50,7 +51,7 @@ function MyTicket(props) {
   };
 
   useEffect(() => {
-    if (dirty) {
+  if (dirty && props.loggedIn) {     // in realtà non servirebbe isLoggedIn perchè non vedi il bottone!
       API.getAllAnswersForTicket(ticket.id)
         .then((answerList) => setAnswers(answerList))
         .catch((err) => console.error(err));
@@ -62,17 +63,25 @@ function MyTicket(props) {
   useEffect(() => {
     if (props.hasLoggedOut) {
       setAnswers([]);
+      setEstimation("");
       showingLess();
     }
   }, [props.hasLoggedOut]);
+
+  useEffect(() => {
+    if(props.authToken && props.loggedIn && props.user.isAdmin)
+      API.getEstimation(props.authToken,{category: ticket.category, title: ticket.title}).then((estimation) => setEstimation(estimation)).catch(()=>{});
+
+  }, [props.authToken]);
 
   return (
     <Container className="mb-4"> {/* Add margin-bottom here for spacing */}
       {/* First Row */}
       <Row className="bg-dark text-white p-3" style={{ backgroundColor: 'darkblue' }}>
-        <Col xs={9}>
-          <b>{`${ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)} - ${ticket.username}`}</b>
-        </Col>
+      <Col xs={9}>
+         <b>{`${ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)} - ${ticket.username}`}</b>
+         {props.user.isAdmin && estimation ? <span>{` - ${estimation} hours`}</span> : ''}
+      </Col>
         <Col xs={3} className="text-end">
           <MyButtonGroup 
             showMore={showMore}

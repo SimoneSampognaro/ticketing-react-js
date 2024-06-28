@@ -20,6 +20,10 @@ const jwtSecret = '6xvL4xkAAbG49hcXf5GIYSvkDICiUAR6EdR5dLdwW7hMzUjjMUe9t6M5kSAYx
 const app = express();
 const port = 3002;
 
+const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+  return `${location}[${param}]: ${msg}`;
+};
+
 const corsOptions = {
   origin: 'http://localhost:5173',
   credentials: true,
@@ -93,7 +97,7 @@ app.post('/api/estimationTime',
     if (!errors.isEmpty()) {
         return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
     }
-    const estimation = estimateTime(req.body.ticket.title, req.body.ticket.category, req.auth.access);
+    const estimation = estimateTime(req.body.title, req.body.category, req.auth.access);
 
     res.json({estimation: estimation});
 });
