@@ -14,6 +14,10 @@ const passport = require('passport'); // auth middleware
 const LocalStrategy = require('passport-local'); // username and password for login
 const session = require('express-session'); // enable sessions
 
+const jsonwebtoken = require('jsonwebtoken');
+const jwtSecret = '6xvL4xkAAbG49hcXf5GIYSvkDICiUAR6EdR5dLdwW7hMzUjjMUe9t6M5kSAYxsvX';
+const expireTime = 60; //seconds
+
 // init express
 const app = new express();
 const port = 3001;
@@ -438,6 +442,18 @@ app.get('/api/sessions/current', (req, res) => {  if(req.isAuthenticated()) {
     res.status(200).json(req.user);}
   else
     res.status(401).json({error: 'Unauthenticated user!'});;
+});
+
+/*** Token ***/
+
+// GET /api/auth-token
+app.get('/api/auth-token', isLoggedIn, (req, res) => {
+  let authLevel = req.user.isAdmin ? "admin" : "normal"; // avoid bit flip attack
+  console.log("Ciao");
+  const payloadToSign = { access: authLevel, authId: 1234 };
+  const jwtToken = jsonwebtoken.sign(payloadToSign, jwtSecret, {expiresIn: expireTime});
+
+  res.json({token: jwtToken, authLevel: authLevel});  // authLevel is just for debug. Anyway it is in the JWT payload
 });
 
 

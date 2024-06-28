@@ -80,3 +80,5 @@ devi essere autenticato, poi controllo in base ai campi presenti nel body (categ
 
 - secondo server
 - handleError??
+- 1 api per ogni ticket??
+- sicurezza API server2 !!
