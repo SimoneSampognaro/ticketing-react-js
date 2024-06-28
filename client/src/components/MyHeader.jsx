@@ -1,13 +1,16 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { Navbar, Container, Button } from 'react-bootstrap';
+import { Navbar, Container, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import "../index.css";
 
 function MyHeader(props) {
   const username = props.user.username;
+  const errorMsg = props.errorMsg;
+  const setErrorMsg = props.setErrorMsg;
 
 	return (
+      <>
         <Navbar expand="lg" className="bg-custom">
           <Container>
             <Navbar.Brand style={{color: "white"}}>
@@ -28,6 +31,8 @@ function MyHeader(props) {
             </Navbar.Collapse>
           </Container>
         </Navbar>
+        {errorMsg? <Alert variant='danger my-1' dismissible onClose={()=>setErrorMsg('')}>{errorMsg.error}</Alert> : false}
+      </>
       );
 }
 

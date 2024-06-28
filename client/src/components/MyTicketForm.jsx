@@ -40,7 +40,7 @@ function MyTicketForm(props) {
     return (
         <>
             {errorMsg? <Alert variant='danger my-2' onClose={()=>setErrorMsg('')} dismissible>{errorMsg}</Alert> : false }
-            { show && <MyModal handleClose={handleClose} show={show} ticket={ticket} addTicket={props.addTicket}/> }
+            { show && <MyModal handleClose={handleClose} show={show} ticket={ticket} addTicket={props.addTicket} username={props.user.username}/> }
             <Form className="p-3 bg-light">
                 <Form.Group className="mb-3">
                     <Form.Label><b>Title</b></Form.Label>

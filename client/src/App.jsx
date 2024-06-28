@@ -22,6 +22,7 @@ function AppWithRouter(props) {
   const [dirty, setDirty] = useState(true);
   const [categories, setCategories] = useState([]);
   const [hasLoggedOut, setHasLoggedOut] = useState(false); // New state for logout tracking
+  const [ errorMsg, setErrorMsg ] = useState('');
   
   const navigate = useNavigate();
 
@@ -54,7 +55,7 @@ function AppWithRouter(props) {
         }
         setDirty(false);
       } catch (err) {
-        console.error(err);
+        setErrorMsg(err);
       }
     };
 
@@ -62,15 +63,15 @@ function AppWithRouter(props) {
   }, [dirty, loggedIn]);
 
   function addTicket(ticket) {
-    API.addTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => console.error(err));
+    API.addTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => setErrorMsg(err));
   }
 
   function editTicket(ticket){
-    API.editTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => console.error(err));
+    API.editTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => setErrorMsg(err));
   }
 
   function closeTicket(ticket){
-    API.closeTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => console.error(err));
+    API.closeTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => setErrorMsg(err));
   }
 
   const doLogOut = async () => {
@@ -103,7 +104,7 @@ function AppWithRouter(props) {
   return (
     <Container fluid>
         <Routes>
-          <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut}/>} >
+          <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />} >
             <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} /> } />
             <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user}/>} />
             <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />

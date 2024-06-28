@@ -46,7 +46,7 @@ function GenericLayout(props) {
         <>
         <Row>
           <Col>
-            <MyHeader loggedIn={props.loggedIn} user={props.user} logout={props.logout}/>
+            <MyHeader loggedIn={props.loggedIn} user={props.user} logout={props.logout} errorMsg={props.errorMsg} setErrorMsg={props.setErrorMsg}/>
           </Col>
         </Row>
         <Row>
