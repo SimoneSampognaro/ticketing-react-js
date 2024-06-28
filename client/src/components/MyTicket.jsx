@@ -69,7 +69,7 @@ function MyTicket(props) {
   }, [props.hasLoggedOut]);
 
   useEffect(() => {
-    if(props.authToken && props.loggedIn && props.user.isAdmin)
+    if(props.authToken && props.loggedIn && props.user.isAdmin) // dirty per evitare che tutti richiedano estimation???
       API.getEstimation(props.authToken,{category: ticket.category, title: ticket.title}).then((estimation) => setEstimation(estimation)).catch(()=>{});
 
   }, [props.authToken]);

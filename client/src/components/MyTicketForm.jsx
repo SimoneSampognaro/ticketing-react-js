@@ -3,6 +3,7 @@ import {Form, Button, Alert} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { MyModal } from './MyModal';
 import TextareaAutosize from 'react-textarea-autosize';
+import API from '../API.js';
 
 function MyTicketForm(props) {
     const navigate = useNavigate();
@@ -13,6 +14,7 @@ function MyTicketForm(props) {
     const [ticket, setTicket] = useState(null);
     const [show, setShow] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [estimation, setEstimation] = useState("");
 
     const handleClose = () => setShow(false);
 
@@ -31,6 +33,7 @@ function MyTicketForm(props) {
         } else if (newTicket.description.trim().length == 0) {
             setErrorMsg('Description cannot be empty or just new lines');
         } else {
+            API.getEstimation(props.authToken, newTicket).then((estimation) => setEstimation(estimation)).catch(()=>{});
             setTicket(newTicket);
             setShow(true);
         }
@@ -40,7 +43,7 @@ function MyTicketForm(props) {
     return (
         <>
             {errorMsg? <Alert variant='danger my-2' onClose={()=>setErrorMsg('')} dismissible>{errorMsg}</Alert> : false }
-            { show && <MyModal handleClose={handleClose} show={show} ticket={ticket} addTicket={props.addTicket} username={props.user.username}/> }
+            { show && <MyModal handleClose={handleClose} show={show} ticket={ticket} addTicket={props.addTicket} username={props.user.username} estimation={estimation} isAdmin={props.user.isAdmin}/> }
             <Form className="p-3 bg-light">
                 <Form.Group className="mb-3">
                     <Form.Label><b>Title</b></Form.Label>

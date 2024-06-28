@@ -116,7 +116,7 @@ function AppWithRouter(props) {
         <Routes>
           <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />} >
             <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} /> } />
-            <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user}/>} />
+            <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user} authToken={authToken}/>} />
             <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />
             <Route path="*" element={<NotFoundLayout />} />
           </Route>
