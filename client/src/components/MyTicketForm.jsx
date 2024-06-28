@@ -19,12 +19,9 @@ function MyTicketForm(props) {
     function handleShow() {
 
         const newTicket = { 
-            state: 1, 
             category: category, 
-            ownerId: props.user.userId, 
             title: title.trim(),  
             description: description,
-            username: props.user.username
         };
 
         if (newTicket.title.length == 0) {

@@ -6,6 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { MyAnswerList } from './MyAnswer';
 import TextareaAutosize from 'react-textarea-autosize';
 import API from '../API';
+import { MyButtonGroup } from './MyButtonGroup';
+import { MyAnswerForm } from './MyAnswerForm';
 
 function MyTicket(props) {
   const ticket = props.ticket;
@@ -72,34 +74,17 @@ function MyTicket(props) {
           <b>{`${ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)} - ${ticket.username}`}</b>
         </Col>
         <Col xs={3} className="text-end">
-
-          {props.loggedIn && (
-              <>
-            {props.user.isAdmin ? 
-            (
-              <Link to={`/edit/${ticket.id}`}>
-                <Button variant="warning" size="sm">
-                  <i className="bi bi-pencil-square"></i>
-                </Button>
-              </Link>
-            ) : null}
-            <Button variant="danger mx-1" size="sm" onClick={() => props.closeTicket({ id: ticket.id })}>
-              <i className="bi bi-stopwatch"></i>
-            </Button>
-              </>
-          )}
-
-          {props.loggedIn && (
-            showMore ? (
-              <Button variant="secondary" size="sm" onClick={showingLess}>
-                Show less
-              </Button>
-            ) : (
-              <Button variant="secondary" size="sm" onClick={showingMore}>
-                Show more
-              </Button>
-            )
-          )}
+          <MyButtonGroup 
+            showMore={showMore}
+            showingMore={showingMore}
+            showingLess={showingLess}
+            closeTicket={props.closeTicket}
+            ticketId={ticket.id}
+            user={props.user}
+            loggedIn={props.loggedIn}
+            ownerId={ticket.ownerId}
+            state={ticket.state}
+          />
         </Col>
       </Row>
 
@@ -127,33 +112,23 @@ function MyTicket(props) {
 
       {/* Join Conversation Form */}
       {showMore && props.loggedIn && ticket.state ? (
-    <Row>
-      <Col>
-        {!joinConversation ? (
-          <Button variant="link" onClick={() => setJoinConversation(true)}>Join the conversation</Button>
-        ) : (
-          <Form onSubmit={handleSubmit}>
-            <Form.Group>
-              <TextareaAutosize
-                className="form-control"
-                placeholder="Type your answer here"
-                name="newAnswer"
-                value={newAnswer}
-                onChange={(event) => setNewAnswer(event.target.value)}
-                minRows={3}
+        <Row>
+          <Col>
+            {!joinConversation ? (
+              <Button variant="link" onClick={() => setJoinConversation(true)}>Join the conversation</Button>
+            ) : (
+              <MyAnswerForm
+                handleSubmit={handleSubmit}
+                newAnswer={newAnswer}
+                setNewAnswer={setNewAnswer}
+                errorMsg={errorMsg}
+                setJoinConversation={setJoinConversation}
+                deleteFormInformation={deleteFormInformation}
               />
-              {errorMsg && <Form.Label className="text-danger">{errorMsg}</Form.Label>}
-            </Form.Group>
-            <Button variant="dark my-1" type="submit">Submit</Button>
-            <Button variant="secondary my-1 mx-1" onClick={() => { setJoinConversation(false); deleteFormInformation(); }}>
-              Close
-            </Button>
-          </Form>
-        )}
-      </Col>
-    </Row>
-  ) : null}
-
+            )}
+          </Col>
+        </Row>
+      ) : null}
     </Container>
   );
 }
