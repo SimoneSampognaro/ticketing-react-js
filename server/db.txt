@@ -82,3 +82,6 @@ devi essere autenticato, poi controllo in base ai campi presenti nel body (categ
 - handleError??
 - 1 api per ogni ticket??
 - sicurezza API server2 !!
+
+- API unica per estimation tutti ticket??
+- verificare sicurezza dell'estimation
