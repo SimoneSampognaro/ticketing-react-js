@@ -51,7 +51,7 @@ passport.use(new LocalStrategy(
 // serialize and de-serialize the user (user object <-> session)
 // we serialize only the user id and store it in the session
 passport.serializeUser((user, done) => {
-  done(null, user.userId);
+  done(null, user.userId, user.username, user.isAdmin);
 });
 
 // starting from the data in the session, we extract the current (logged-in) user
@@ -101,32 +101,6 @@ app.get('/api/tickets', isLoggedIn, async (req, res) => {
   }
 });
 
-
-
-/* app.get('/api/tickets', async (req, res) => {
-  try {
-    
-    let result = {};
-    if(req.query.filter){ // if defined
-      const categories = await dao.listCategories(); // check if category exists
-      if (!(categories.includes(req.query.filter)))
-        return res.status(406).json(categories);
-
-      result = await dao.listTicketsByCategory(req.query.filter);
-    }
-    else{
-      result = await dao.listTickets(); 
-    }
-    if(result.error)
-      res.status(404).json(result);
-    else           // sort by time backend side
-      res.json(result.sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp))));
-  } catch(err) {
-    console.error(err);
-    res.status(500).end();
-  }
-}); */
-
 // GET /api/categories
 app.get('/api/categories',
   (req, res) => {
@@ -172,7 +146,7 @@ app.get('/api/tickets/:id', [ check('id').isInt({min: 1}) ] ,async (req, res) =>
 
 // GET /api/tickets/<id>/answers
 // 422 errore in id, 500 internal database error, 404 wrong id
-app.get('/api/tickets/:id/answers',[ check('id').isInt({min: 1}) ] ,async (req, res) => {
+app.get('/api/tickets/:id/answers', [check('id').isInt({min: 1})] , async (req, res) => {
 
   const errors = validationResult(req).formatWith(errorFormatter); // format error message
   if (!errors.isEmpty()) {
@@ -196,7 +170,7 @@ app.get('/api/tickets/:id/answers',[ check('id').isInt({min: 1}) ] ,async (req, 
 
 // GET /api/answers/<id>
 // 422 errore in id, 404 answer not found, 500 internal database error
-app.get('/api/answers/:id',[ check('id').isInt({min: 1}) ], async (req, res) => {
+app.get('/api/answers/:id', [ check('id').isInt({min: 1}) ] , async (req, res) => {
 
   const errors = validationResult(req).formatWith(errorFormatter); // format error message
   if (!errors.isEmpty()) {
@@ -245,7 +219,8 @@ app.post('/api/tickets', isLoggedIn,
       ownerId: req.user.userId,
       title: req.body.title, 
       timestamp:  dayjs().format("YYYY-MM-DD HH:mm:ss"), 
-      description: req.body.description
+      description: req.body.description,
+      username: req.user.username
     };
 
     try {
@@ -325,9 +300,12 @@ app.put('/api/tickets/:id/closeTicket', isLoggedIn,
       const ticket = await dao.getTicket(ticketId);
       if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
         return res.status(404).json(ticket);
+      if(!ticket.state){
+        return res.status(422).json({error: "Ticket is closed!" });
+      }
 
-      const user = await userDao.getUserById(req.user.userId);
-      if(!user.isAdmin && user.userId != ticket.ownerId ) // non sei admin e non sei proprietario
+      //const user = await userDao.getUserById(req.user.userId);
+      if(!req.user.isAdmin && req.user.userId != ticket.ownerId ) // non sei admin e non sei proprietario
         return res.status(401).json({error: "Not authorized"});
       
       ticket.state = req.body.state;  // user is admin or the owner
@@ -335,7 +313,7 @@ app.put('/api/tickets/:id/closeTicket', isLoggedIn,
       return res.json(result); 
     } catch (err) {
       res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
-    } // { error: `Database error during the favorite update of ticket ${req.params.id}` }
+    }
   }
 );
 
@@ -401,8 +379,8 @@ app.put('/api/tickets/:id/edit', isLoggedIn,
       if (ticket.error)   // If not found, the function returns a resolved promise with an object where the "error" field is set
         return res.status(404).json(ticket);
 
-      const user = await userDao.getUserById(req.user.userId);
-      if(!user.isAdmin){ // non sei admin
+      //const user = await userDao.getUserById(req.user.userId);
+      if(!req.user.isAdmin){ // non sei admin
         return res.status(401).json({error: "Not authorized"});
       } 
       ticket.state = req.body.state;

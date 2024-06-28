@@ -74,8 +74,9 @@ devi essere autenticato, poi controllo in base ai campi presenti nel body (categ
 - Show More -> Logout -> Crash ...
 - mostrare bottoni (join conversation solo se ticket aperto) e bottone edit solo se sei admin DONE
 - Quando ticket è chiuso, far vedere a schermo che non puoi aggiungere una risposta DONE
+- mostrare bottone per chiudere ticket solo se admin o propietario DONE
+- controllare come stampare errori a schermo DONE
+- mostrare errore in edit (componente error definito se app setta Error???) DONE
 
-- mostrare bottone per chiudere ticket solo se admin o propietario
-- controllare come stampare errori a schermo
-- mostrare errore in edit (componente error definito se app setta Error???)
 - secondo server
+- handleError??
