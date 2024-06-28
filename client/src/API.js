@@ -3,6 +3,7 @@
 import dayjs from "dayjs";
 
 const URL = 'http://localhost:3001/api';
+const estimation_URL = 'http://localhost:3002/api';
 
 async function getAllTickets() {
   // call  /api/tickets
@@ -210,8 +211,39 @@ async function getUserInfo() {
   }
 }
 
+async function getAuthToken() {
+  const response = await fetch(URL+'/auth-token', {
+    credentials: 'include'
+  });
+  const token = await response.json();
+  console.log("ei");
+  if (response.ok) {
+    return token;
+  } else {
+    throw token;  // an object with the error coming from the server
+  }
+}
+
+async function getEstimation(authToken, ticket) {
+  // retrieve info from an external server, where info can be accessible only via JWT token
+  const response = await fetch(estimation_URL+`/estimationTime`, {
+    method: 'POST',
+    headers: { 
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(ticket),
+  });
+  const info = await response.json();
+  if (response.ok) {
+    return info;
+  } else {
+    throw info;  // expected to be a json object (coming from the server) with info about the error
+  }
+}
+
 const API = {
     getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories, addAnswer, getTicketById, 
-    editTicket, closeTicket, logIn, logOut, getUserInfo, getAllTicketsGeneric
+    editTicket, closeTicket, logIn, logOut, getUserInfo, getAllTicketsGeneric, getAuthToken, getEstimation
 };
 export default API;

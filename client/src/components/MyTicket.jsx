@@ -148,7 +148,7 @@ function MyTicketList(props) {
       )}
       {/* Ticket List */}
       {props.tickets.map((e, index) => (
-        <MyTicket key={index} ticket={e} closeTicket={props.closeTicket} user={props.user} loggedIn={props.loggedIn} hasLoggedOut={props.hasLoggedOut}/>
+        <MyTicket key={index} ticket={e} closeTicket={props.closeTicket} user={props.user} loggedIn={props.loggedIn} hasLoggedOut={props.hasLoggedOut} authToken={props.authToken}/>
       ))}
     </Container>
   );

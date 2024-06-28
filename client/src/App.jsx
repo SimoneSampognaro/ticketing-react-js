@@ -23,8 +23,16 @@ function AppWithRouter(props) {
   const [categories, setCategories] = useState([]);
   const [hasLoggedOut, setHasLoggedOut] = useState(false); // New state for logout tracking
   const [ errorMsg, setErrorMsg ] = useState('');
+
+  const [authToken, setAuthToken] = useState(null);
   
   const navigate = useNavigate();
+
+  const renewToken = () => {
+    API.getAuthToken()
+      .then((resp) => setAuthToken(resp.token))
+      .catch(()=>{}); // setErrorMsg?
+  };
 
   useEffect(()=> {
     const checkAuth = async() => {
@@ -33,6 +41,7 @@ function AppWithRouter(props) {
         const user = await API.getUserInfo();
         setLoggedIn(true);
         setUser(user);
+        renewToken();
       } catch(err) {
         // NO need to do anything: user is simply not yet authenticated
         //handleError(err);
@@ -78,10 +87,10 @@ function AppWithRouter(props) {
     await API.logOut();
     setLoggedIn(false);
     setUser({});
+    setAuthToken(''); 
     setDirty(true);
     setHasLoggedOut(true); // Set logout state to true
     navigate("/");
-    /* set state to empty if appropriate */
   }
 
   const handleLogin = async (credentials) => {
@@ -90,6 +99,7 @@ function AppWithRouter(props) {
       setUser(user);
       setLoggedIn(true);
       setDirty(true);
+      API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch(()=>{});
       setHasLoggedOut(false);
     } catch (err) {
       // error is handled and visualized in the login form, do not manage error, throw it
@@ -105,7 +115,7 @@ function AppWithRouter(props) {
     <Container fluid>
         <Routes>
           <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />} >
-            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} /> } />
+            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} /> } />
             <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user}/>} />
             <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />
             <Route path="*" element={<NotFoundLayout />} />
