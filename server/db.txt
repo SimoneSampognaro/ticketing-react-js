@@ -89,6 +89,8 @@ devi essere autenticato, poi controllo in base ai campi presenti nel body (categ
 - REFRESH TOKEN DONE
 - category cambia? DONE
 
+- trigger OPEN/CLOSE, refresh token
+
 
 ------------------------------------
 - rileggere bene la traccia
@@ -98,3 +100,6 @@ devi essere autenticato, poi controllo in base ai campi presenti nel body (categ
 
 --------------------
 - 1 API per tutti i ticket estimation, passare soltanto ID, title, category !!!
+
+- RIMUOVERE VARIABILI INUTILI
+- controllare TUTTO!!!!!!!!!!!!!!!!!!!

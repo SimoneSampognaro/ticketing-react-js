@@ -223,7 +223,7 @@ async function getAuthToken() {
   }
 }
 
-async function getEstimation(authToken, ticket) {
+/*async function getEstimation(authToken, ticket) {
   // retrieve info from an external server, where info can be accessible only via JWT token
   const response = await fetch(estimation_URL+`/estimationTime`, {
     method: 'POST',
@@ -239,10 +239,38 @@ async function getEstimation(authToken, ticket) {
   } else {
     throw info;  // expected to be a json object (coming from the server) with info about the error
   }
+}*/
+
+async function getEstimations(authToken, tickets) {
+
+  const payload = tickets.map(ticket => ({
+    category: ticket.category,
+    title: ticket.title,
+    id: ticket.id
+  }));
+
+  // Effettua la richiesta al server esterno
+  const response = await fetch(estimation_URL + `/estimations`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const info = await response.json();
+
+  if (response.ok) {
+    return info; // Supponiamo che info sia già un array di oggetti con id e estimation
+  } else {
+    throw info; // Expected to be a json object (coming from the server) with info about the error
+  }
 }
+
 
 const API = {
     getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories, addAnswer, getTicketById, 
-    editTicket, closeTicket, logIn, logOut, getUserInfo, getAllTicketsGeneric, getAuthToken, getEstimation
+    editTicket, closeTicket, logIn, logOut, getUserInfo, getAllTicketsGeneric, getAuthToken, getEstimations
 };
 export default API;

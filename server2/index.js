@@ -84,7 +84,7 @@ app.use( function (err, req, res, next) {
 
 /*** APIs ***/
 
-// POST /api/suggestions
+// POST /api/estimationTime
 app.post('/api/estimationTime', 
   [
   check('category').notEmpty().isString(), // controllare in range di caratteri?
@@ -99,6 +99,26 @@ app.post('/api/estimationTime',
     const estimation = estimateTime(req.body.title, req.body.category, req.auth.access);
 
     res.json({estimation: estimation});
+});
+
+app.post('/api/estimations', 
+  [
+    check('*.category').notEmpty().isString(), 
+    check('*.title').notEmpty().isString(),
+  ], 
+  async (req, res) => {
+    const errors = validationResult(req).formatWith(errorFormatter);
+    if (!errors.isEmpty()) {
+        return res.status(422).json(errors.errors);
+    }
+
+    const access = req.auth.access;
+    const estimations = req.body.map(item => {
+      const estimation = estimateTime(item.title, item.category, access);
+      return { id: item.id, estimation: estimation };
+    });
+
+    res.json(estimations);
 });
 
 

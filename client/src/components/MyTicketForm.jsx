@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import {Form, Button, Alert} from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { MyModal } from './MyModal';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -15,41 +15,64 @@ function MyTicketForm(props) {
     const [show, setShow] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [estimation, setEstimation] = useState("");
+    const [estimate, setEstimate] = useState(false);
+    const [retry, setRetry] = useState(false); // state for retrying API call
 
     const handleClose = () => setShow(false);
 
     function handleShow() {
-
         const newTicket = { 
             category: category, 
             title: title.trim(),  
             description: description,
         };
 
-        if (newTicket.title.length == 0) {
+        if (newTicket.title.length === 0) {
             setErrorMsg('Title length cannot be 0');
         } else if (newTicket.category === "" || newTicket.category === "Choose a category") {
             setErrorMsg('Select a category');
-        } else if (newTicket.description.trim().length == 0) {
+        } else if (newTicket.description.trim().length === 0) {
             setErrorMsg('Description cannot be empty or just new lines');
         } else {
-            API.getEstimation(props.authToken, newTicket).then((estimation) => setEstimation(estimation)).catch(()=>props.setRefreshToken(true));
             setTicket(newTicket);
-            setShow(true);
+            setEstimate(true);
         }
     }
 
-    // The Form.Select component has an onChange handler that updates the category state when the user selects a different category.
+    useEffect(() => {
+        const fetchEstimation = async () => {
+            try {
+                const estimation = await API.getEstimations(props.authToken, [ticket]);
+                setEstimation(estimation[0].estimation);
+                setShow(true);
+            } catch (error) {
+                props.renewToken();
+                setRetry(true);
+            }
+        };
+
+        if (props.user && estimate && props.authToken && ticket) {
+            fetchEstimation();
+            setEstimate(false);
+        }
+
+        // Retry the API call after token renewal
+        if (retry && props.authToken && ticket) {
+            fetchEstimation();
+            setRetry(false);
+        }
+    }, [estimate, props.authToken, retry]);
+
     return (
         <>
-            {errorMsg? <Alert variant='danger my-2' onClose={()=>setErrorMsg('')} dismissible>{errorMsg}</Alert> : false }
-            { show && <MyModal handleClose={handleClose} show={show} ticket={ticket} addTicket={props.addTicket} username={props.user.username} estimation={estimation} isAdmin={props.user.isAdmin}/> }
+            {errorMsg ? <Alert variant='danger my-2' onClose={() => setErrorMsg('')} dismissible>{errorMsg}</Alert> : false}
+            {show && <MyModal handleClose={handleClose} show={show} ticket={ticket} addTicket={props.addTicket} username={props.user.username} estimation={estimation} isAdmin={props.user.isAdmin} />}
             <Form className="p-3 bg-light">
                 <Form.Group className="mb-3">
                     <Form.Label><b>Title</b></Form.Label>
                     <Form.Control type="text" name="title" value={title} onChange={(event) => setTitle(event.target.value)} />
                 </Form.Group>
-                
+
                 <Form.Group className="mb-3">
                     <Form.Label><b>Category</b></Form.Label>
                     <Form.Select value={category} onChange={(event) => setCategory(event.target.value)}>
@@ -60,20 +83,20 @@ function MyTicketForm(props) {
                     </Form.Select>
                 </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label><b>Description</b></Form.Label>
-                 <TextareaAutosize
-                    className="form-control" // Bootstrap class for styling
-                    name="description"
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    minRows={3} // Minimum number of rows
-                />
-            </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label><b>Description</b></Form.Label>
+                    <TextareaAutosize
+                        className="form-control" // Bootstrap class for styling
+                        name="description"
+                        value={description}
+                        onChange={(event) => setDescription(event.target.value)}
+                        minRows={3} // Minimum number of rows
+                    />
+                </Form.Group>
 
                 <div>
                     <Button variant="dark mx-1" onClick={handleShow}>Add</Button>
-                    <Button variant='warning' onClick={() => {navigate('/')}}>Cancel</Button>
+                    <Button variant='warning' onClick={() => { navigate('/') }}>Cancel</Button>
                 </div>
             </Form>
         </>

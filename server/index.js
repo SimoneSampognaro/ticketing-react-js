@@ -16,7 +16,7 @@ const session = require('express-session'); // enable sessions
 
 const jsonwebtoken = require('jsonwebtoken');
 const jwtSecret = '6xvL4xkAAbG49hcXf5GIYSvkDICiUAR6EdR5dLdwW7hMzUjjMUe9t6M5kSAYxsvX';
-const expireTime = 60; //seconds
+const expireTime = 10; //seconds
 
 // init express
 const app = new express();
