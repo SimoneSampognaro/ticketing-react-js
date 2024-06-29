@@ -40,7 +40,7 @@ function AppWithRouter(props) {
       }
     }
     setErrorMsg(errMsg);
-    if (errMsg === 'Not authenticated')
+    /*if (errMsg === 'Not authenticated')
       setTimeout(() => {  // do logout in the app state
         setLoggedIn(false);
         setUser({});
@@ -50,7 +50,7 @@ function AppWithRouter(props) {
         navigate("/");
       }, 2000);
     else
-      setTimeout(()=>setDirty(true), 2000);  // Fetch the current version from server, after a while
+      setTimeout(()=>setDirty(true), 2000);  // Fetch the current version from server, after a while*/
   }
 
   const renewToken = () => {
@@ -81,9 +81,9 @@ function AppWithRouter(props) {
         if (loggedIn && dirty) {
           const fullTicketList = await API.getAllTickets();
           setTickets(fullTicketList);
-        } else if (!loggedIn && dirty) {
           const categoriesList = await API.getAllCategories();
           setCategories(categoriesList);
+        } else if (!loggedIn && dirty) {
           const genericTicketList = await API.getAllTicketsGeneric();
           setTickets(genericTicketList);
         }
@@ -95,6 +95,24 @@ function AppWithRouter(props) {
 
     fetchTickets(); 
   }, [dirty, loggedIn]);
+
+ /* useEffect(()=> {
+    const getTokenValid = async() => {
+      try {
+        // here you have the user info, if already logged in
+        API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch((err) => handleError(err));
+      } catch(err) {
+        // NO need to do anything: user is simply not yet authenticated
+        //handleError(err);
+      }
+    };
+    getTokenValid();
+  }, []);*/
+
+  useEffect( () => { 
+    
+    API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch((err) => handleError(err));
+    }, []);
 
   function addTicket(ticket) {
     API.addTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => handleError(err));
@@ -114,7 +132,7 @@ function AppWithRouter(props) {
     setUser({});
     setAuthToken(''); 
     setDirty(true);
-    setHasLoggedOut(true); // Set logout state to true
+    setHasLoggedOut(true); // Set logout state to true, cancel all answers
     navigate("/");
   }
 
@@ -136,7 +154,7 @@ function AppWithRouter(props) {
     <Container fluid>
         <Routes>
           <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />} >
-            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} renewToken={renewToken} /> } />
+            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} renewToken={renewToken} handleError={handleError} /> } />
             <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user} authToken={authToken}/>} />
             <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />
             <Route path="*" element={<NotFoundLayout />} />

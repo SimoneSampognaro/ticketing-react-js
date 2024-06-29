@@ -95,3 +95,6 @@ devi essere autenticato, poi controllo in base ai campi presenti nel body (categ
 - verificare le api chiamate
 - handleError in tutte le API
 - chiedono tutti il token!!!
+
+--------------------
+- 1 API per tutti i ticket estimation, passare soltanto ID, title, category !!!

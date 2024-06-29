@@ -30,7 +30,7 @@ function MyTicket(props) {
         answer: newAnswer
       }
       deleteFormInformation();
-      API.addAnswer(answer, ticket.id).then(() => setDirty(true)).catch((err) => console.error(err));
+      API.addAnswer(answer, ticket.id).then(() => setDirty(true)).catch((err) => props.handleError(err));
     }
   };
 
@@ -54,7 +54,7 @@ function MyTicket(props) {
   if (dirty && props.loggedIn) {     // in realtà non servirebbe isLoggedIn perchè non vedi il bottone!
       API.getAllAnswersForTicket(ticket.id)
         .then((answerList) => setAnswers(answerList))
-        .catch((err) => console.error(err));
+        .catch((err) => props.handleError(err));
       setDirty(false);
     }
   }, [dirty]);
@@ -161,7 +161,7 @@ function MyTicketList(props) {
       {props.tickets.map((e, index) => (
         <MyTicket key={index} ticket={e} closeTicket={props.closeTicket} user={props.user} 
             loggedIn={props.loggedIn} hasLoggedOut={props.hasLoggedOut} authToken={props.authToken}
-            renewToken={props.renewToken} />
+            renewToken={props.renewToken} handleError={props.handleError} />
       ))}
     </Container>
   );
