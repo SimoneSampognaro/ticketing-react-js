@@ -69,12 +69,12 @@ function MyTicket(props) {
   }, [props.hasLoggedOut]);
 
   useEffect(() => {
-    if(props.authToken && props.loggedIn && props.user.isAdmin) // dirty per evitare che tutti richiedano estimation???
+    if(props.authToken && props.loggedIn && props.user.isAdmin && ticket.state && !props.refreshToken) // dirty per evitare che tutti richiedano estimation???
       API.getEstimation(props.authToken,{category: ticket.category, title: ticket.title})
       .then((estimation) => setEstimation(estimation))
-      .catch(()=>props.renewToken()); // devo richiedere token
+      .catch(()=>props.setRefreshToken(true)); // devo richiedere token
 
-  }, [props.authToken]);
+  }, [props.authToken, ticket.state]);
 
   return (
     <Container className="mb-4"> {/* Add margin-bottom here for spacing */}
@@ -82,7 +82,7 @@ function MyTicket(props) {
       <Row className="bg-dark text-white p-3" style={{ backgroundColor: 'darkblue' }}>
       <Col xs={9}>
          <b>{`${ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)} - ${ticket.username}`}</b>
-         {props.user.isAdmin && estimation ? <span>{` - ${estimation} hours`}</span> : ''}
+         {props.user.isAdmin && estimation && ticket.state ? <span>{` - ${estimation} hours`}</span> : ''}
       </Col>
         <Col xs={3} className="text-end">
           <MyButtonGroup 
@@ -161,7 +161,7 @@ function MyTicketList(props) {
       {props.tickets.map((e, index) => (
         <MyTicket key={index} ticket={e} closeTicket={props.closeTicket} user={props.user} 
             loggedIn={props.loggedIn} hasLoggedOut={props.hasLoggedOut} authToken={props.authToken}
-            renewToken={props.renewToken} handleError={props.handleError} />
+            setRefreshToken={props.setRefreshToken} handleError={props.handleError} refreshToken={props.refreshToken}/>
       ))}
     </Container>
   );

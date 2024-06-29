@@ -19,7 +19,7 @@ function NotFoundLayout(props) {
 
 function AddLayout(props) {
     return (
-      <MyTicketForm addTicket={props.addTicket} categories={props.categories} user={props.user} authToken={props.authToken}/>
+      <MyTicketForm addTicket={props.addTicket} categories={props.categories} user={props.user} authToken={props.authToken} setRefreshToken={props.setRefreshToken}/>
     );
 }
 

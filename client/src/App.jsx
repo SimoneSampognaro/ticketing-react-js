@@ -25,6 +25,7 @@ function AppWithRouter(props) {
   const [ errorMsg, setErrorMsg ] = useState('');
 
   const [authToken, setAuthToken] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(false);
   
   const navigate = useNavigate();
 
@@ -53,11 +54,11 @@ function AppWithRouter(props) {
       setTimeout(()=>setDirty(true), 2000);  // Fetch the current version from server, after a while*/
   }
 
-  const renewToken = () => {
+/*  const renewToken = () => {
     API.getAuthToken()
       .then((resp) => setAuthToken(resp.token))
       .catch((err) => handleError(err));
-  };
+  };*/
 
   useEffect(()=> {
     const checkAuth = async() => {
@@ -66,7 +67,8 @@ function AppWithRouter(props) {
         const user = await API.getUserInfo();
         setLoggedIn(true);
         setUser(user);
-        renewToken();
+        //renewToken();
+        setRefreshToken(true);
       } catch(err) {
         // NO need to do anything: user is simply not yet authenticated
         //handleError(err);
@@ -110,9 +112,14 @@ function AppWithRouter(props) {
   }, []);*/
 
   useEffect( () => { 
-    
-    API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch((err) => handleError(err));
-    }, []);
+    if(refreshToken){
+        API.getAuthToken().then((resp) => {
+          setAuthToken(resp.token);
+          setRefreshToken(false);
+        }).catch((err) => handleError(err));
+        
+    }    
+    }, [refreshToken]);
 
   function addTicket(ticket) {
     API.addTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => handleError(err));
@@ -142,7 +149,8 @@ function AppWithRouter(props) {
       setUser(user);
       setLoggedIn(true);
       setDirty(true);
-      API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch((err) => handleError(err));
+      //API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch((err) => handleError(err));
+      setRefreshToken(true);
       setHasLoggedOut(false);
     } catch (err) {
       // error is handled and visualized in the login form, do not manage error, throw it
@@ -154,8 +162,8 @@ function AppWithRouter(props) {
     <Container fluid>
         <Routes>
           <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />} >
-            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} renewToken={renewToken} handleError={handleError} /> } />
-            <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user} authToken={authToken}/>} />
+            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} handleError={handleError} setRefreshToken={setRefreshToken}  refreshToken={refreshToken}/> } />
+            <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user} authToken={authToken} setRefreshToken={setRefreshToken}/>} />
             <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />
             <Route path="*" element={<NotFoundLayout />} />
           </Route>

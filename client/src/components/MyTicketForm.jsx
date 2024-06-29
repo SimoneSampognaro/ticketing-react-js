@@ -33,7 +33,7 @@ function MyTicketForm(props) {
         } else if (newTicket.description.trim().length == 0) {
             setErrorMsg('Description cannot be empty or just new lines');
         } else {
-            API.getEstimation(props.authToken, newTicket).then((estimation) => setEstimation(estimation)).catch(()=>{});
+            API.getEstimation(props.authToken, newTicket).then((estimation) => setEstimation(estimation)).catch(()=>props.setRefreshToken(true));
             setTicket(newTicket);
             setShow(true);
         }
