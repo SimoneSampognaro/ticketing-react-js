@@ -72,7 +72,7 @@ function MyTicket(props) {
     if(props.authToken && props.loggedIn && props.user.isAdmin) // dirty per evitare che tutti richiedano estimation???
       API.getEstimation(props.authToken,{category: ticket.category, title: ticket.title})
       .then((estimation) => setEstimation(estimation))
-      .catch((err)=>{props.handleError(err); props.renewToken(); }); // devo richiedere token
+      .catch(()=>props.renewToken()); // devo richiedere token
 
   }, [props.authToken]);
 
@@ -159,7 +159,9 @@ function MyTicketList(props) {
       )}
       {/* Ticket List */}
       {props.tickets.map((e, index) => (
-        <MyTicket key={index} ticket={e} closeTicket={props.closeTicket} user={props.user} loggedIn={props.loggedIn} hasLoggedOut={props.hasLoggedOut} authToken={props.authToken}/>
+        <MyTicket key={index} ticket={e} closeTicket={props.closeTicket} user={props.user} 
+            loggedIn={props.loggedIn} hasLoggedOut={props.hasLoggedOut} authToken={props.authToken}
+            renewToken={props.renewToken} />
       ))}
     </Container>
   );
