@@ -86,5 +86,12 @@ devi essere autenticato, poi controllo in base ai campi presenti nel body (categ
 - API unica per estimation tutti ticket??
 - verificare sicurezza dell'estimation
 
-- REFRESH TOKEN
-- category cambia?
+- REFRESH TOKEN DONE
+- category cambia? DONE
+
+
+------------------------------------
+- rileggere bene la traccia
+- verificare le api chiamate
+- handleError in tutte le API
+- chiedono tutti il token!!!

@@ -448,7 +448,7 @@ app.get('/api/sessions/current', (req, res) => {  if(req.isAuthenticated()) {
 
 // GET /api/auth-token
 app.get('/api/auth-token', isLoggedIn, (req, res) => {
-  let authLevel = req.user.isAdmin ? "admin" : "normal"; // avoid bit flip attack
+  let authLevel = req.user.isAdmin ? "admin" : "normal";
   const payloadToSign = { access: authLevel, authId: 1234 };
   const jwtToken = jsonwebtoken.sign(payloadToSign, jwtSecret, {expiresIn: expireTime});
 
