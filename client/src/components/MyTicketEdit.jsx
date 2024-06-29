@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Form, ButtonGroup, ToggleButton, Button, Container, Row, Col } from 'react-bootstrap';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function MyTicketEdit(props) {
     const { ticketId } = useParams();
     const objToEdit = ticketId && props.tickets.find(e => e.id === parseInt(ticketId));
 
+    const navigate = useNavigate();
     // Default values to handle undefined objToEdit
     const [radioValue, setRadioValue] = useState(objToEdit ? objToEdit.state.toString() : "1");
     const [category, setCategory] = useState(objToEdit ? objToEdit.category : "");
@@ -18,7 +19,15 @@ function MyTicketEdit(props) {
     ];
 
     const handleSubmit = () => {
-        props.editTicket({ id: ticketId, category: category, state: radioValue });
+        if (objToEdit) {
+            const hasStateChanged = radioValue !== objToEdit.state.toString();
+            const hasCategoryChanged = category !== objToEdit.category;
+
+            if (hasStateChanged || hasCategoryChanged) {
+                props.editTicket({ id: ticketId, category: category, state: radioValue });
+            }
+        }
+        navigate("/"); // admin has not modified anything, so just go back to home page without refreshing tickets
     };
 
     return (
@@ -64,7 +73,7 @@ function MyTicketEdit(props) {
                         <Col>
                             <div className="fs-5">
                                 <strong>Description:</strong><br />
-                                {ticket.description.split("\n").map((string, index) => (
+                                {ticket.description.replace(/\\n/g, '\n').split("\n").map((string, index) => (
                                     <React.Fragment key={index}>
                                         {string}
                                         <br />

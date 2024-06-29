@@ -31,7 +31,7 @@ function MyHeader(props) {
             </Navbar.Collapse>
           </Container>
         </Navbar>
-        {errorMsg? <Alert variant='danger my-1' dismissible onClose={()=>setErrorMsg('')}>{errorMsg.error}</Alert> : false}
+        {errorMsg? <Alert variant='danger my-1' dismissible onClose={()=>setErrorMsg('')}>{errorMsg}</Alert> : false}
       </>
       );
 }

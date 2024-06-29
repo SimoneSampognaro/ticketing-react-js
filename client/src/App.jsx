@@ -28,10 +28,35 @@ function AppWithRouter(props) {
   
   const navigate = useNavigate();
 
+  function handleError(err) {
+    let errMsg = 'Unkwnown error';
+    if (err.errors) {
+      if (err.errors[0].msg) {
+        errMsg = err.errors[0].msg;
+      }
+    } else {
+      if (err.error) {
+        errMsg = err.error;
+      }
+    }
+    setErrorMsg(errMsg);
+    if (errMsg === 'Not authenticated')
+      setTimeout(() => {  // do logout in the app state
+        setLoggedIn(false);
+        setUser({});
+        setAuthToken(''); 
+        setDirty(true);
+        setHasLoggedOut(true);
+        navigate("/");
+      }, 2000);
+    else
+      setTimeout(()=>setDirty(true), 2000);  // Fetch the current version from server, after a while
+  }
+
   const renewToken = () => {
     API.getAuthToken()
       .then((resp) => setAuthToken(resp.token))
-      .catch(()=>{}); // setErrorMsg?
+      .catch((err) => handleError(err));
   };
 
   useEffect(()=> {
@@ -64,7 +89,7 @@ function AppWithRouter(props) {
         }
         setDirty(false);
       } catch (err) {
-        setErrorMsg(err);
+        handleError(err);
       }
     };
 
@@ -72,15 +97,15 @@ function AppWithRouter(props) {
   }, [dirty, loggedIn]);
 
   function addTicket(ticket) {
-    API.addTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => setErrorMsg(err));
+    API.addTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => handleError(err));
   }
 
   function editTicket(ticket){
-    API.editTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => setErrorMsg(err));
+    API.editTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => handleError(err));
   }
 
   function closeTicket(ticket){
-    API.closeTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => setErrorMsg(err));
+    API.closeTicket(ticket).then(() => {setDirty(true); navigate('/');}).catch((err) => handleError(err));
   }
 
   const doLogOut = async () => {
@@ -99,7 +124,7 @@ function AppWithRouter(props) {
       setUser(user);
       setLoggedIn(true);
       setDirty(true);
-      API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch(()=>{});
+      API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch((err) => handleError(err));
       setHasLoggedOut(false);
     } catch (err) {
       // error is handled and visualized in the login form, do not manage error, throw it
@@ -107,15 +132,11 @@ function AppWithRouter(props) {
     }
   };
 
-  /*function handleLogin(credentials){
-    API.logIn(credentials).then(user => loginSuccessful(user)).catch((err) => console.error(err));
-  }*/
-
   return (
     <Container fluid>
         <Routes>
           <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />} >
-            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} /> } />
+            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} renewToken={renewToken} handleError={handleError} /> } />
             <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user} authToken={authToken}/>} />
             <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />
             <Route path="*" element={<NotFoundLayout />} />

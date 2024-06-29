@@ -10,7 +10,7 @@ function MyAnswer(props) {
         <Card.Body >
           <Card.Subtitle className="mb-2 text-muted">{answer.username}</Card.Subtitle>
           <Card.Text>
-            { answer.answer.split("\n").map((string,index) => (
+            {answer.answer.replace(/\\n/g, '\n').split('\n').map((string,index) => (
                 <React.Fragment key={index}>
                    {string}
                    <br />

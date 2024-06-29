@@ -70,7 +70,9 @@ function MyTicket(props) {
 
   useEffect(() => {
     if(props.authToken && props.loggedIn && props.user.isAdmin) // dirty per evitare che tutti richiedano estimation???
-      API.getEstimation(props.authToken,{category: ticket.category, title: ticket.title}).then((estimation) => setEstimation(estimation)).catch(()=>{});
+      API.getEstimation(props.authToken,{category: ticket.category, title: ticket.title})
+      .then((estimation) => setEstimation(estimation))
+      .catch((err)=>{props.handleError(err); props.renewToken(); }); // devo richiedere token
 
   }, [props.authToken]);
 

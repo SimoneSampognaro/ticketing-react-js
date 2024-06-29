@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../API.js';
 
 function LoginForm(props) {
-  const [username, setUsername] = useState('user1@example.com');
+  const [username, setUsername] = useState('admin1@example.com');
   const [password, setPassword] = useState('pwd');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -68,7 +68,7 @@ function LoginForm(props) {
             <Form.Label><strong>Email</strong></Form.Label>
             <Form.Control
               type="email"
-              value={username} placeholder="Example: user1@example.com"
+              value={username} placeholder="Example: user@example.com"
               onChange={(ev) => setUsername(ev.target.value)}
             />
           </Form.Group>

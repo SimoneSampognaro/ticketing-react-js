@@ -441,7 +441,7 @@ app.delete('/api/sessions/current', (req, res) => {
 app.get('/api/sessions/current', (req, res) => {  if(req.isAuthenticated()) {
     res.status(200).json(req.user);}
   else
-    res.status(401).json({error: 'Unauthenticated user!'});;
+    res.status(401).json({error: 'Not authenticated'});
 });
 
 /*** Token ***/
