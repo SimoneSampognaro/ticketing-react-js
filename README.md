@@ -10,9 +10,6 @@
 - Route `/login`: Login form, allows users to login. After a successful login, the user is redirected to the main route ("/").
 - Route `*`: Page for nonexisting URLs (Not Found page) that redirects to the home page.
 
-```plaintext
-prova
-```
 
 ## API Server
 
@@ -133,6 +130,7 @@ prova
 - Table `Tickets` - (ticketId), state, category, ownerId, title, timestamp, description
 - Table `Answers` - (answerId), ticketId, authorId, timestamp, answer
 - Table `Users` - (userId), username, email, isAdmin, hash, salt
+- Table `Categories` - (category)
 
 ## Main React Components
 
