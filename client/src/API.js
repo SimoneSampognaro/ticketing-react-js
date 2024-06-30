@@ -118,7 +118,7 @@ function addAnswer(answer,ticketId) {
 function editTicket(ticket) {
   // Call  PUT /api/tickets/<id>/edit
   return new Promise((resolve, reject) => {
-    fetch(URL+`/tickets/${ticket.id}/edit`, {
+    fetch(URL+`/tickets/${ticket.id}/editTicket`, {
       method: 'PUT',
       credentials: 'include',
       headers: {

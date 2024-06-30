@@ -3,7 +3,7 @@
 const express = require('express');
 const morgan = require('morgan'); // logging middleware
 const cors = require('cors');
-const { check, validationResult } = require('express-validator'); // validation middleware
+const { check, validationResult, body } = require('express-validator'); // validation middleware
 
 const { expressjwt: jwt } = require('express-jwt');
 
@@ -77,8 +77,12 @@ app.use( function (err, req, res, next) {
 
 /*** APIs ***/
 
+// Ensure that the API checks for an array in the body that contains at least one element, 
+// along with validating the category and title fields within each element of the array.
 app.post('/api/estimations', 
-  [
+  [ 
+    body().isArray().withMessage('Body must be an array'),
+    body().notEmpty().withMessage('Body cannot be empty'),
     check('*.category').notEmpty().isString(), 
     check('*.title').notEmpty().isString(),
   ], 

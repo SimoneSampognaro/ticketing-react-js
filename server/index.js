@@ -14,7 +14,7 @@ const session = require('express-session'); // enable sessions
 
 const jsonwebtoken = require('jsonwebtoken');
 const jwtSecret = '6xvL4xkAAbG49hcXf5GIYSvkDICiUAR6EdR5dLdwW7hMzUjjMUe9t6M5kSAYxsvX';
-const expireTime = 120; //seconds
+const expireTime = 10; //seconds
 
 // init express
 const app = new express();
@@ -187,7 +187,7 @@ app.post('/api/tickets', isLoggedIn,
         return res.status(422).json(categories);
 
       const result = await dao.createTicket(ticket);
-      res.json(result);
+      res.json({ id: result.id, timestamp: result.timestamp });
     } catch (err) {
       res.status(500).json({ error: `Database error during the creation of new ticket: ${err}` }); 
     }
@@ -228,14 +228,14 @@ app.post('/api/answers/:id', isLoggedIn,
       if(!resultTicket.state) 
         return res.status(406).json({error: "Ticket is closed"}); // Ticket is closed, no answers can be provided
       const newAnswer = await dao.createAnswer(answer);
-      res.json(newAnswer);
+      res.json({ id: newAnswer.answerId, timestamp: newAnswer.timestamp });
     } catch (err) {
       res.status(500).json({ error: `Database error during the creation of answer ${answer.answer} by ${answer.authorId}.` });
     }
   }
 );
 
-// PUT /api/tickets/<id>/editState
+// PUT /api/tickets/<id>/closeTicket
 // 404 ticket not found, 500 database error, 422 errore in input
 // Only admins or ticket's owner will be able to perform the operation, if the ticket is open
 app.put('/api/tickets/:id/closeTicket', isLoggedIn,
@@ -264,7 +264,7 @@ app.put('/api/tickets/:id/closeTicket', isLoggedIn,
       
       ticket.state = 0;  // User is admin or the owner
       const result = await dao.updateTicket(ticketId, ticket);
-      return res.json(result); 
+      return res.json({ id: result.id, timestamp: result.timestamp }); 
     } catch (err) {
       res.status(500).json({ error: `Database error during the state update of ticket ${req.params.id}` });
     }
@@ -274,7 +274,7 @@ app.put('/api/tickets/:id/closeTicket', isLoggedIn,
 // PUT /api/tickets/<id>/edit
 // 404 ticket not found, 500 database error, 422 errore in input
 // Only admins will be able to perform the operation
-app.put('/api/tickets/:id/edit', isLoggedIn,
+app.put('/api/tickets/:id/editTicket', isLoggedIn,
   [
   check('id').isInt({min: 1}),
   check('state').isBoolean(),
@@ -307,7 +307,7 @@ app.put('/api/tickets/:id/edit', isLoggedIn,
       ticket.state = req.body.state;
       ticket.category = req.body.category;
       const result = await dao.updateTicket(ticketId, ticket);
-      return res.json(result);
+      return res.json({ id: result.id, timestamp: result.timestamp });
     } catch (err) {
       res.status(500).json({ error: `Database error during the state update of ticket ${req.params.id}` });
     }
@@ -357,7 +357,8 @@ app.get('/api/sessions/current', (req, res) => {  if(req.isAuthenticated()) {
 // GET /api/auth-token
 app.get('/api/auth-token', isLoggedIn, (req, res) => {
   let authLevel = req.user.isAdmin ? "admin" : "normal";
-  const payloadToSign = { access: authLevel, authId: 1234 };
+
+  const payloadToSign = { access: authLevel, userId: req.user.userId };
   const jwtToken = jsonwebtoken.sign(payloadToSign, jwtSecret, {expiresIn: expireTime});
 
   res.json({token: jwtToken, authLevel: authLevel});

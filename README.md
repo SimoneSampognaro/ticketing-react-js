@@ -44,42 +44,46 @@ prova
   ```plaintext
   {category: "new feature", title: "Multi-factor authentication", description: "Security by design is important!\\nWe want strong authentication"}
   ```
-  - ***response body***: JSON object with the new ticket on success, otherwise a JSON object with error description
+  - ***response body***: JSON object with the new ticket id and timestamp on success, otherwise a JSON object with error description
   ```plaintext
-  {id: 10, timestamp: "2024-06-29 13:00:00", state: 1, category: "new feature", title: "Multi-factor authentication", description: "Security by design is important!\\nWe want strong authentication"}
+  {id: 10, timestamp: "2024-06-29 13:00:00"}
   ```
   - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed)
 - POST `/api/answers/:id`: Submit an answer for the ticket identified by `:id`
-  - ***request***: JSON object with the answer 
+  - ***request***: JSON object with the new answer text 
   ```plaintext
   {answer: "We are working on it.\nStay tuned."}
   ```
-  - ***response body***: JSON object with the new answer on success, otherwise a JSON object with error description
+  - ***response body***: JSON object with the new answer id and timestamp on success, otherwise a JSON object with error description
   ```plaintext
-  {answerId: 7, authorId: 3, ticketId: 7, timestamp: "2024-06-30 12:18:40", username: "admin1" description: "We are working on it.\nStay tuned."}
+  {id: 7, timestamp: "2024-06-30 12:18:40"}
   ```
   - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `406 Not acceptable` Ticket closed
-- PUT `/api/tickets/<id>/editState`: Close the ticket identified by `:id`
-  - ***response body***: JSON object with the edited ticket on success, otherwise a JSON object with error description
+- PUT `/api/tickets/<id>/closeTicket`: Close the ticket identified by `:id`
+  - ***response body***: JSON object with the edited ticket id and timestamp on success, otherwise a JSON object with error description
   ```plaintext
-  {id: 10, timestamp: "2024-06-29 13:00:00", state: 0, category: "new feature", title: "Multi-factor authentication", description: "Security by design is important!\\nWe want strong authentication"}
+  {id: 10, timestamp: "2024-06-29 13:00:00"}
   ```
   - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `406 Not acceptable` Ticket closed
-- PUT `/api/tickets/:id/edit`: Admin users can open, close or modify ticket identified by `:id`
+- PUT `/api/tickets/:id/editTicket`: Admin users can open, close or modify ticket identified by `:id`
   - ***request***: JSON object contains the category and state values to update the ticket
   ```plaintext
   { category: "payment", state: 1}
   ```
-  - ***response body***: JSON object with the edited ticket on success, otherwise a JSON object with error description
+  - ***response body***: JSON object with the edited ticket id and timestamp on success, otherwise a JSON object with error description
   ```plaintext
-  {id: 10, timestamp: "2024-06-29 13:00:00", state: 1, category: "payment", title: "Multi-factor authentication", description: "Security by design is important!\\nWe want strong authentication"}
+  {id: 10, timestamp: "2024-06-29 13:00:00"}
   ```
   - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed)
   
 - GET `/api/auth-token` Authenticated users fetch the token whose _authLevel_ depends on the user role (admin or normal)
-  - ***response body***: 
+  - ***response body***: JSON object with token
   ```plaintext
   {authLevel: "admin", token :"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJhZG1pbiIsImF1dGhJZCI6MTIzNCwiaWF0IjoxNzE5NzQ0MDA0LCJleHAiOjE3MTk3NDQxMjR9.zb7eVXkTCSABfxm_-mceZXVRqieflpNCiS0Q_RtAnYg"}
+  ```
+  - ***Token payload***:
+  ```plaintext
+  { access: "admin", userId: 3};
   ```
   - Codes: `200 OK` , `401 Not authorized`
 
@@ -126,24 +130,32 @@ prova
 
 ## Database Tables
 
-- Table `users` - contains xx yy zz
-- Table `something` - contains ww qq ss
-- ...
+- Table `Tickets` - (ticketId), state, category, ownerId, title, timestamp, description
+- Table `Answers` - (answerId), ticketId, authorId, timestamp, answer
+- Table `Users` - (userId), username, email, isAdmin, hash, salt
 
 ## Main React Components
 
-- `ListOfSomething` (in `List.js`): component purpose and main functionality
-- `GreatButton` (in `GreatButton.js`): component purpose and main functionality
-- ...
-
-(only _main_ components, minor ones may be skipped)
+- `AppWithRouter` (in `App.jsx`): Essentially a component that acts as the main App, wrapped inside a `Router` to leverage the useNavigate hook. This component is responsible for managing the majority of the application's state.
+- `MyTicketList` (in `MyTicket.jsx`): Renders the list of all tickets.
+- `MyTicket` (in `MyTicket.jsx`): Displays detailed ticket information. If the user is authenticated, additional components are rendered: `ButtonGroup` for closing and editing tickets, `MyAnswerList` for displaying answers, and `MyAnswerForm` for submitting new answers.
+- `MyAnswer` (in `MyAnswer.jsx`): Renders answer details within a `Card` Bootstrap component.
+- `MyTicketForm` (in `MyTicketForm.jsx`): Facilitates ticket creation. Upon clicking the Add button, a confirmation dialog is displayed in the `MyModal` component after retrieving an estimate from the server
+- `MyTicketEdit` (in `MyTicketEdit.jsx`): Provides ticket editing functionality for administrators. Displays ticket data, a `ToggleButton` to change the ticket status, and a `Form.Select` to choose categories fetched from the server.
+- `MyHeader` (in `MyHeader.jsx`): The navigation bar of the application, where API errors are displayed also.
+- `LoginForm` (in LoginForm.jsx): The login form for user authentication. Responsible for client-side validation of login credentials, ensuring a valid email and a non-empty password.
 
 ## Screenshot
 
-![Screenshot](./img/screenshot.png)
+![Screenshot](./img/admin.png)
+![Screenshot](./img/form.png)
+![Screenshot](./img/confirmation.png)
 
 ## Users Credentials
 
-- username, password (plus any other requested info which depends on the text)
-- username, password (plus any other requested info which depends on the text)
+- user1@example.com, password : "pwd"
+- user2@example.com, password : "pwd"
+- user3@example.com, password : "pwd"
+- admin1@example.com, password : "pwd"
+- admin2@example.com, password : "pwd"
 
