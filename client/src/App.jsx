@@ -42,6 +42,15 @@ function AppWithRouter(props) {
       }
     }
     setErrorMsg(errMsg);
+
+    if (errMsg === 'Not authenticated')
+      setTimeout(() => {  // do logout in the app state
+        setUser({}); setLoggedIn(false); setDirty(true);
+        navigate("/"); setAuthToken(""); setHasLoggedOut(true);
+        setCategories([]);
+      }, 2000);
+    else
+      setTimeout(()=>setDirty(true), 2000);  // Fetch the current version from server, after a while
   }
 
   const renewToken = () => {
