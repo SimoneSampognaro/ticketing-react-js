@@ -39,19 +39,6 @@ function LoginForm(props) {
       }
   };
 
-  /*const handleSubmit = (event) => {
-    event.preventDefault();
-    const credentials = { username, password };
-
-    if (!username) {
-      setErrorMessage('Username cannot be empty');
-    } else if (!password) {
-      setErrorMessage('Password cannot be empty');
-    } else {
-      props.login(credentials);
-      navigate("/");
-    };
-  }  */
 
   return (
     <Row>
