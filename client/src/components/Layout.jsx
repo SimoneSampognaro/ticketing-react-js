@@ -27,7 +27,7 @@ function LoginLayout(props) {
   return (
     <Row>
       <Col>
-        <LoginForm loginSuccessful={props.loginSuccessful} login={props.login}/>
+        <LoginForm login={props.login}/>
       </Col>
     </Row>
   );

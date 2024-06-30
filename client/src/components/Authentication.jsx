@@ -14,15 +14,15 @@ function LoginForm(props) {
     API.logIn(credentials)
       .then( user => {
         setErrorMessage('');
-        props.loginSuccessful(user);
+        props.login(user);
         navigate('/');
       })
       .catch(err => {
-        setErrorMessage('Wrong username or password');
+        setErrorMessage("Wrong username or password");
       })
   }
   
-  const handleSubmita = (event) => {
+  const handleSubmit = (event) => {
       event.preventDefault();
       setErrorMessage('');
       const credentials = { username, password };
@@ -39,7 +39,7 @@ function LoginForm(props) {
       }
   };
 
-  const handleSubmit = (event) => {
+  /*const handleSubmit = (event) => {
     event.preventDefault();
     const credentials = { username, password };
 
@@ -51,7 +51,7 @@ function LoginForm(props) {
       props.login(credentials);
       navigate("/");
     };
-  }  
+  }  */
 
   return (
     <Row>

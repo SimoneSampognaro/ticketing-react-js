@@ -131,18 +131,12 @@ function AppWithRouter(props) {
     navigate("/");
   }
 
-  const handleLogin = async (credentials) => {
-    try {
-      const user = await API.logIn(credentials);
-      setUser(user);
-      setLoggedIn(true);
-      setDirty(true);
-      renewToken();
-      setHasLoggedOut(false);
-    } catch (err) {
-      // error is handled and visualized in the login form, do not manage error, throw it
-      throw err;
-    }
+  const handleLogin = (user) => {
+    setUser(user);
+    setLoggedIn(true);
+    setDirty(true);
+    renewToken();
+    setHasLoggedOut(false);
   };
 
   return (
