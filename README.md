@@ -18,7 +18,7 @@
   ```plaintext
   {id: 5, state: 1, category: "payment", ownerId: 5, title: "Issue with payment processing", timestamp:"2024-06-29 12:00:00", username:"admin2", description:"There is an issue with processing payments through our portal.\\nWe need this resolved urgently."}
   ```
-  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `401 Not authorized`.
+  - Codes: `200 OK` , `500 Internal Server Error`, `401 Not authorized`.
 - GET `/api/categories`: Get all categories (for logged-in users)
   - ***response body***: JSON object with the list of categories
   ```plaintext
@@ -30,7 +30,7 @@
   ```plaintext
   {id: 5, state: 1, category: "payment", ownerId: 5, title: "Issue with payment processing", timestamp:"2024-06-29 12:00:00", username:"admin2"}
   ```
-  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`.
+  - Codes: `200 OK` , `500 Internal Server Error`.
 - GET `/api/tickets/:id/answers`: Get all answers for the ticket identified by `:id`
   - ***response body***: JSON object with the list of answers
   ```plaintext
@@ -57,7 +57,7 @@
   {id: 7, timestamp: "2024-06-30 12:18:40"}
   ```
   - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `406 Not acceptable` Ticket closed, `401 Not authorized`.
-- PUT `/api/tickets/<id>/closeTicket`: Close the ticket identified by `:id`
+- PUT `/api/tickets/:id/closeTicket`: Close the ticket identified by `:id`
   - ***response body***: JSON object with the edited ticket id and timestamp on success, otherwise a JSON object with error description
   ```plaintext
   {id: 10, timestamp: "2024-06-29 13:00:00"}

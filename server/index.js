@@ -95,12 +95,9 @@ app.get('/api/tickets', isLoggedIn, async (req, res) => {
   try {
   
   const result = await dao.listTickets(); 
-  if(result.error)
-      res.status(404).json(result);
-  else           // sort by time backend side
-      res.json(result.sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp))));
+  // sort by time backend side
+  res.json(result.sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp))));
   } catch(err) {
-    console.error(err);
     res.status(500).end();
   }
 });
@@ -121,10 +118,8 @@ app.get('/api/categories', isLoggedIn,
 app.get('/api/tickets/generic', async (req, res) => {
   try {
     const result = await dao.listTicketsGeneric();
-    if(result.error)
-      res.status(404).json(result);
-    else
-      res.json(result.sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp))));
+    // sort by time backend side
+    res.json(result.sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp))));
   } catch(err) {
     res.status(500).end();
   }
