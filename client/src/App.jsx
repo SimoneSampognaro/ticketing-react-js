@@ -102,8 +102,7 @@ function AppWithRouter(props) {
     useEffect( () => { 
       if(user && estimate){
           if(user.isAdmin && authToken){
-            API.getEstimations(authToken,tickets).then((estimations)=>setEstimations(estimations)).catch(() => {renewToken(); setEstimate(true);});
-            setEstimate(false);
+            API.getEstimations(authToken,tickets).then((estimations)=>{setEstimations(estimations); setEstimate(false); }).catch(() => {renewToken(); setEstimate(true);});
           }
       }    
       }, [estimate, authToken]);
@@ -126,6 +125,7 @@ function AppWithRouter(props) {
     setUser({});
     setAuthToken(''); 
     setDirty(true);
+    setCategories([]);
     setHasLoggedOut(true); // Set logout state to true, cancel all answers
     navigate("/");
   }

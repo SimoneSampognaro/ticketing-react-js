@@ -14,7 +14,7 @@ const session = require('express-session'); // enable sessions
 
 const jsonwebtoken = require('jsonwebtoken');
 const jwtSecret = '6xvL4xkAAbG49hcXf5GIYSvkDICiUAR6EdR5dLdwW7hMzUjjMUe9t6M5kSAYxsvX';
-const expireTime = 120; //seconds
+const expireTime = 240; //seconds
 
 // init express
 const app = new express();
@@ -90,6 +90,7 @@ app.use(passport.session());
 
 // GET /api/tickets
 // Users logged-in
+// `401 Not authorized`, 500 internal database error
 app.get('/api/tickets', isLoggedIn, async (req, res) => {
   try {
   
@@ -105,6 +106,7 @@ app.get('/api/tickets', isLoggedIn, async (req, res) => {
 });
 
 // GET /api/categories
+// `401 Not authorized`, 500 internal database error
 app.get('/api/categories', isLoggedIn,
   (req, res) => {
     dao.listCategories()
@@ -115,6 +117,7 @@ app.get('/api/categories', isLoggedIn,
 
 // GET /api/tickets/generic
 // Generic visitors
+// 500 internal database error
 app.get('/api/tickets/generic', async (req, res) => {
   try {
     const result = await dao.listTicketsGeneric();
@@ -128,8 +131,8 @@ app.get('/api/tickets/generic', async (req, res) => {
 });
 
 // GET /api/tickets/<id>/answers
-// 422 errore in id, 500 internal database error, 404 wrong id
-app.get('/api/tickets/:id/answers', [check('id').isInt({min: 1})] , async (req, res) => {
+// 422 errore in id, 500 internal database error, 404 wrong id, `401 Not authorized`
+app.get('/api/tickets/:id/answers', isLoggedIn, [check('id').isInt({min: 1})] , async (req, res) => {
 
   const errors = validationResult(req).formatWith(errorFormatter); // format error message
   if (!errors.isEmpty()) {
@@ -152,7 +155,7 @@ app.get('/api/tickets/:id/answers', [check('id').isInt({min: 1})] , async (req, 
 });
 
 // POST /api/tickets
-// 422 problem with inputs, 500 errore server, 422 categories doesnt exist (ritorna le categories possibili!)
+// 422 problem with inputs, 500 error server, 422 categories doesnt exist, `401 Not authorized`
 app.post('/api/tickets', isLoggedIn,
   [
     check('category').notEmpty().isString(),
@@ -195,7 +198,7 @@ app.post('/api/tickets', isLoggedIn,
 );
 
 // POST /api/answers/:id
-// 422 errore in id, 404 ticketId not found, 500 internal database error, 406 ticket chiuso
+// 422 error in id, 404 ticketId not found, 500 internal database error, 406 ticket chiuso, `401 Not authorized`
 app.post('/api/answers/:id', isLoggedIn,
   [
   check('id').isInt({min: 1}),
@@ -236,7 +239,7 @@ app.post('/api/answers/:id', isLoggedIn,
 );
 
 // PUT /api/tickets/<id>/closeTicket
-// 404 ticket not found, 500 database error, 422 errore in input
+// 404 ticket not found, 500 database error, 422 errore in input, 401 Not authorized
 // Only admins or ticket's owner will be able to perform the operation, if the ticket is open
 app.put('/api/tickets/:id/closeTicket', isLoggedIn,
   [
@@ -271,7 +274,7 @@ app.put('/api/tickets/:id/closeTicket', isLoggedIn,
   }
 );
 
-// PUT /api/tickets/<id>/edit
+// PUT /api/tickets/<id>/editTicket
 // 404 ticket not found, 500 database error, 422 errore in input
 // Only admins will be able to perform the operation
 app.put('/api/tickets/:id/editTicket', isLoggedIn,

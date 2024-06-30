@@ -4,11 +4,11 @@
 
 ## React Client Application Routes
 
-- Route `/`: Home page, shows the list of all tickets. Authenticated users see a list of all the tickets in the same form as the generic visitors, plus some buttons to perform operations.
-- Route `/add`: Page to submit a ticket by entering title, category and description, a confirmation page will appear providing also the estimation.
-- Route `/edit/:ticketId`: Page for admins to edit the category and the state of the ticket identified by :ticketId.
-- Route `/login`: Login form, allows users to login. After a successful login, the user is redirected to the main route ("/").
-- Route `*`: Page for nonexisting URLs (Not Found page) that redirects to the home page.
+- Route `/`: The Home page displays a list of all tickets. Authenticated users can view the same list along with additional buttons for performing various operations.
+- Route `/add`: The Ticket Submission page allows users to submit a new ticket by entering the title, category, and description. After submission, a confirmation page appears, providing the estimated time of the ticket.
+- Route `/edit/:ticketId`: The Ticket Edit page is accessible to administrators for modifying the category and status of the ticket identified by `:ticketId`.
+- Route `/login`: The Login page contains a form that enables users to log in. Upon successful authentication, the user is redirected to the Home page (`/`).
+- Route `*`: The Not Found page handles non-existent URLs and redirects users to the Home page.
 
 
 ## API Server
@@ -18,7 +18,8 @@
   ```plaintext
   {id: 5, state: 1, category: "payment", ownerId: 5, title: "Issue with payment processing", timestamp:"2024-06-29 12:00:00", username:"admin2", description:"There is an issue with processing payments through our portal.\\nWe need this resolved urgently."}
   ```
-- GET `/api/categories`: Get all categories 
+  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `401 Not authorized`.
+- GET `/api/categories`: Get all categories (for logged-in users)
   - ***response body***: JSON object with the list of categories
   ```plaintext
   ["inquiry", "maintenance", "new feature", "administrative", "payment"]
@@ -35,9 +36,9 @@
   ```plaintext
   {answerId: 4, authorId: 1, ticketId: 5, timestamp: "2024-06-29 13:00:00", username: "user1", answer:"We are looking into the payment issue.\\nWe will resolve it soon."}
   ```
-  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed)
+  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `401 Not authorized`.
 - POST `/api/tickets`: Create a new ticket
-  - ***request***: JSON object with the category, title and description inserted by the user
+  - ***request***: JSON object containing the user-submitted category, title, and description.
   ```plaintext
   {category: "new feature", title: "Multi-factor authentication", description: "Security by design is important!\\nWe want strong authentication"}
   ```
@@ -45,7 +46,7 @@
   ```plaintext
   {id: 10, timestamp: "2024-06-29 13:00:00"}
   ```
-  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed)
+  - Codes: `200 OK` , `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `401 Not authorized`.
 - POST `/api/answers/:id`: Submit an answer for the ticket identified by `:id`
   - ***request***: JSON object with the new answer text 
   ```plaintext
@@ -55,13 +56,13 @@
   ```plaintext
   {id: 7, timestamp: "2024-06-30 12:18:40"}
   ```
-  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `406 Not acceptable` Ticket closed
+  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `406 Not acceptable` Ticket closed, `401 Not authorized`.
 - PUT `/api/tickets/<id>/closeTicket`: Close the ticket identified by `:id`
   - ***response body***: JSON object with the edited ticket id and timestamp on success, otherwise a JSON object with error description
   ```plaintext
   {id: 10, timestamp: "2024-06-29 13:00:00"}
   ```
-  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `406 Not acceptable` Ticket closed
+  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `406 Not acceptable` Ticket closed, `401 Not authorized`.
 - PUT `/api/tickets/:id/editTicket`: Admin users can open, close or modify ticket identified by `:id`
   - ***request***: JSON object contains the category and state values to update the ticket
   ```plaintext
@@ -71,18 +72,15 @@
   ```plaintext
   {id: 10, timestamp: "2024-06-29 13:00:00"}
   ```
-  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed)
+  - Codes: `200 OK` , `404 Not found`, `500 Internal Server Error`, `422 Unprocessable Entity` (the requested action can not be performed), `401 Not authorized`.
   
 - GET `/api/auth-token` Authenticated users fetch the token whose _authLevel_ depends on the user role (admin or normal)
   - ***response body***: JSON object with token
-  ```plaintext
-  {authLevel: "admin", token :"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJhZG1pbiIsImF1dGhJZCI6MTIzNCwiaWF0IjoxNzE5NzQ0MDA0LCJleHAiOjE3MTk3NDQxMjR9.zb7eVXkTCSABfxm_-mceZXVRqieflpNCiS0Q_RtAnYg"}
-  ```
-  - ***Token payload***:
+  - ***Token payload***: access flag and userId
   ```plaintext
   { access: "admin", userId: 3};
   ```
-  - Codes: `200 OK` , `401 Not authorized`
+  - Codes: `200 OK` , `401 Not authorized`.
 
 
 ### Authentication APIs
@@ -127,9 +125,12 @@
 
 ## Database Tables
 
-- Table `Tickets` - (ticketId), state, category, ownerId, title, timestamp, description
-- Table `Answers` - (answerId), ticketId, authorId, timestamp, answer
-- Table `Users` - (userId), username, email, isAdmin, hash, salt
+- Table `Tickets` - (ticketId), state, category, ownerId, title, timestamp, description <br>
+state BOOLEAN (1 Open, 0 Closed), timestamp DATETIME, description TEXT NOT NULL
+- Table `Answers` - (answerId), ticketId, authorId, timestamp, answer <br>
+timestamp DATETIME, answer TEXT NOT NULL
+- Table `Users` - (userId), username, email, isAdmin, hash, salt <br>
+isAdmin BOOLEAN (1 admin, 0 normal)
 - Table `Categories` - (category)
 
 ## Main React Components
