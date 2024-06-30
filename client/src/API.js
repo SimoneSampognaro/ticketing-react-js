@@ -33,7 +33,11 @@ async function getAllTicketsGeneric() {
 
 async function getAllCategories(){
   // Call GET /api/categories
-  const response = await fetch(URL+'/categories');
+  const response = await fetch(URL+`/categories`,
+    {
+      credentials: 'include'
+    }
+  );
   const categories = await response.json();
   if (response.ok) {
     return categories;
@@ -120,7 +124,7 @@ function editTicket(ticket) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(ticket),
+      body: JSON.stringify({ category: ticket.category, state: ticket.state }),
     }).then((response) => {
       if (response.ok) {
         resolve(null);
@@ -143,7 +147,7 @@ function closeTicket(ticket){
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(Object.assign({}, ticket, {state: 0})),
+      //body: JSON.stringify({ state: 0 }),
     }).then((response) => {
       if (response.ok) {
         resolve(null);

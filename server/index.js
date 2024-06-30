@@ -105,7 +105,7 @@ app.get('/api/tickets', isLoggedIn, async (req, res) => {
 });
 
 // GET /api/categories
-app.get('/api/categories',
+app.get('/api/categories', isLoggedIn,
   (req, res) => {
     dao.listCategories()
       .then(categories => res.json(categories))
@@ -152,7 +152,7 @@ app.get('/api/tickets/:id/answers', [check('id').isInt({min: 1})] , async (req, 
 });
 
 // POST /api/tickets
-// 422 problem with inputs, 500 errore server, 406 categories doesnt exist (ritorna le categories possibili!)
+// 422 problem with inputs, 500 errore server, 422 categories doesnt exist (ritorna le categories possibili!)
 app.post('/api/tickets', isLoggedIn,
   [
     check('category').notEmpty().isString(),
@@ -184,12 +184,12 @@ app.post('/api/tickets', isLoggedIn,
 
       const categories = await dao.listCategories(); // check if category exists in the DB
       if (!(categories.includes(req.body.category)))
-        return res.status(406).json(categories);
+        return res.status(422).json(categories);
 
       const result = await dao.createTicket(ticket);
       res.json(result);
     } catch (err) {
-      res.status(503).json({ error: `Database error during the creation of new ticket: ${err}` }); 
+      res.status(500).json({ error: `Database error during the creation of new ticket: ${err}` }); 
     }
   }
 );
@@ -230,18 +230,17 @@ app.post('/api/answers/:id', isLoggedIn,
       const newAnswer = await dao.createAnswer(answer);
       res.json(newAnswer);
     } catch (err) {
-      res.status(503).json({ error: `Database error during the creation of answer ${answer.answer} by ${answer.authorId}.` });
+      res.status(500).json({ error: `Database error during the creation of answer ${answer.answer} by ${answer.authorId}.` });
     }
   }
 );
 
 // PUT /api/tickets/<id>/editState
-// 404 ticket not found, 503 database error, 422 errore in input
+// 404 ticket not found, 500 database error, 422 errore in input
 // Only admins or ticket's owner will be able to perform the operation, if the ticket is open
 app.put('/api/tickets/:id/closeTicket', isLoggedIn,
   [
   check('id').isInt({min: 1}),
-  check('state').isBoolean().custom(value => value === 0)
  ],
   async (req, res) => {
 
@@ -263,17 +262,17 @@ app.put('/api/tickets/:id/closeTicket', isLoggedIn,
       if(!req.user.isAdmin && req.user.userId != ticket.ownerId ) 
         return res.status(401).json({error: "Not authorized"}); // User is neither an admin nor the owner of a ticket
       
-      ticket.state = req.body.state;  // User is admin or the owner
+      ticket.state = 0;  // User is admin or the owner
       const result = await dao.updateTicket(ticketId, ticket);
       return res.json(result); 
     } catch (err) {
-      res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
+      res.status(500).json({ error: `Database error during the state update of ticket ${req.params.id}` });
     }
   }
 );
 
 // PUT /api/tickets/<id>/edit
-// 404 ticket not found, 503 database error, 422 errore in input
+// 404 ticket not found, 500 database error, 422 errore in input
 // Only admins will be able to perform the operation
 app.put('/api/tickets/:id/edit', isLoggedIn,
   [
@@ -310,7 +309,7 @@ app.put('/api/tickets/:id/edit', isLoggedIn,
       const result = await dao.updateTicket(ticketId, ticket);
       return res.json(result);
     } catch (err) {
-      res.status(503).json({ error: `Database error during the state update of ticket ${req.params.id}` });
+      res.status(500).json({ error: `Database error during the state update of ticket ${req.params.id}` });
     }
   }
 );
