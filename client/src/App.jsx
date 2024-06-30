@@ -47,7 +47,7 @@ function AppWithRouter(props) {
       setTimeout(() => {  // do logout in the app state
         setUser({}); setLoggedIn(false); setDirty(true);
         navigate("/"); setAuthToken(""); setHasLoggedOut(true);
-        setCategories([]);
+        setCategories([]); setEstimations([]);
       }, 2000);
     else
       setTimeout(()=>setDirty(true), 2000);  // Fetch the current version from server, after a while
@@ -126,6 +126,7 @@ function AppWithRouter(props) {
     setAuthToken(''); 
     setDirty(true);
     setCategories([]);
+    setEstimations([]);
     setHasLoggedOut(true); // Set logout state to true, cancel all answers
     navigate("/");
   }
