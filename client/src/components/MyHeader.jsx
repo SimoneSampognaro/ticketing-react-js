@@ -31,6 +31,7 @@ function MyHeader(props) {
             </Navbar.Collapse>
           </Container>
         </Navbar>
+        {/* API errors will be catched and shown here */}
         {errorMsg? <Alert variant='danger my-1' dismissible onClose={()=>setErrorMsg('')}>{errorMsg}</Alert> : false}
       </>
       );

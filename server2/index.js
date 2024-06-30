@@ -9,13 +9,6 @@ const { expressjwt: jwt } = require('express-jwt');
 
 const jwtSecret = '6xvL4xkAAbG49hcXf5GIYSvkDICiUAR6EdR5dLdwW7hMzUjjMUe9t6M5kSAYxsvX';
 
-// THIS IS FOR DEBUGGING ONLY: when you start the server, generate a valid token to do tests, and print it to the console
-//This is used to create the token
-//const jsonwebtoken = require('jsonwebtoken');
-//const expireTime = 60; //seconds
-//const token = jsonwebtoken.sign( { access: 'premium', authId: 1234 }, jwtSecret, {expiresIn: expireTime});
-//console.log(token);
-
 // init express
 const app = express();
 const port = 3002;
@@ -84,23 +77,6 @@ app.use( function (err, req, res, next) {
 
 /*** APIs ***/
 
-// POST /api/estimationTime
-app.post('/api/estimationTime', 
-  [
-  check('category').notEmpty().isString(), // controllare in range di caratteri?
-  check('title').notEmpty().isString(),
-  ], 
-  async (req, res) => {
-
-    const errors = validationResult(req).formatWith(errorFormatter); // format error message
-    if (!errors.isEmpty()) {
-        return res.status(422).json( errors.errors ); // error message is sent back as a json with the error info
-    }
-    const estimation = estimateTime(req.body.title, req.body.category, req.auth.access);
-
-    res.json({estimation: estimation});
-});
-
 app.post('/api/estimations', 
   [
     check('*.category').notEmpty().isString(), 
@@ -126,5 +102,5 @@ app.post('/api/estimations',
 
 // Activate the server
 app.listen(port, () => {
-  console.log(`ticket-server listening at http://localhost:${port}`);
+  console.log(`estimation-server listening at http://localhost:${port}`);
 });

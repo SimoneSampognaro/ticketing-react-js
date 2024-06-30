@@ -6,7 +6,7 @@ const URL = 'http://localhost:3001/api';
 const estimation_URL = 'http://localhost:3002/api';
 
 async function getAllTickets() {
-  // call  /api/tickets
+  // Call  GET /api/tickets -- Logged-in users
   const response = await fetch(URL+'/tickets',
     {
       credentials: 'include'
@@ -21,7 +21,7 @@ async function getAllTickets() {
 }
 
 async function getAllTicketsGeneric() {
-  // call  /api/tickets
+  // Call GET /api/tickets/generic  -- Generic visitors
   const response = await fetch(URL+'/tickets/generic');
   const tickets = await response.json();
   if (response.ok) {
@@ -31,24 +31,8 @@ async function getAllTicketsGeneric() {
   }
 }
 
-async function getTicketById(id) {
-  // call  /api/ticket/:id
-  const response = await fetch(URL+`/tickets/${id}`,
-    {
-      credentials: 'include'
-    }
-  );
-  const ticket = await response.json();
-  if (response.ok) {
-    const e = ticket;
-    return {id: e.id, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username};
-  } else {
-    throw ticket;  // expected to be a json object (coming from the server) with info about the error
-  }
-}
-
 async function getAllCategories(){
-  // call  /api/questions
+  // Call GET /api/categories
   const response = await fetch(URL+'/categories');
   const categories = await response.json();
   if (response.ok) {
@@ -59,7 +43,7 @@ async function getAllCategories(){
 }
 
 async function getAllAnswersForTicket(id) {
-    // call  /api/tickets/:id/answers
+    // Call GET /api/tickets/:id/answers
     const response = await fetch(URL+`/tickets/${id}/answers`,
       {
         credentials: 'include'
@@ -79,7 +63,7 @@ async function getAllAnswersForTicket(id) {
   }
 
   function addTicket(ticket) {
-    // call  POST /api/tickets
+    // Call  POST /api/tickets
     return new Promise((resolve, reject) => {
       fetch(URL+`/tickets`, {
         method: 'POST',
@@ -92,19 +76,19 @@ async function getAllAnswersForTicket(id) {
         if (response.ok) {
           response.json()
             .then((id) => resolve(id))
-            .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+            .catch(() => { reject({ error: "Cannot parse server response." }) });
         } else {
           // analyze the cause of error
           response.json()
             .then((message) => { reject(message); }) // error message in the response body
-            .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+            .catch(() => { reject({ error: "Cannot parse server response." }) });
         }
       }).catch(() => { reject({ error: "Cannot communicate with the server." }) }); // connection errors
     });
 }
 
 function addAnswer(answer,ticketId) {
-  // call  POST /api/answers/:ticketId
+  // Call  POST /api/answers/:ticketId
   return new Promise((resolve, reject) => {
     fetch(URL+`/answers/${ticketId}`, {
       method: 'POST',
@@ -117,19 +101,18 @@ function addAnswer(answer,ticketId) {
       if (response.ok) {
         response.json()
           .then((id) => resolve(id))
-          .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+          .catch(() => { reject({ error: "Cannot parse server response." }) });
       } else {
-        // analyze the cause of error
         response.json()
           .then((message) => { reject(message); }) // error message in the response body
-          .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+          .catch(() => { reject({ error: "Cannot parse server response." }) });
       }
     }).catch(() => { reject({ error: "Cannot communicate with the server." }) }); // connection errors
   });
 }
 
 function editTicket(ticket) {
-  // call  PUT /api/tickets/<id>/edit
+  // Call  PUT /api/tickets/<id>/edit
   return new Promise((resolve, reject) => {
     fetch(URL+`/tickets/${ticket.id}/edit`, {
       method: 'PUT',
@@ -151,7 +134,8 @@ function editTicket(ticket) {
   });
 }
 
-function closeTicket(ticket){// call  PUT /api/tickets/<id>/closeTicket
+function closeTicket(ticket){
+  // Call  PUT /api/tickets/<id>/closeTicket
   return new Promise((resolve, reject) => {
     fetch(URL+`/tickets/${ticket.id}/closeTicket`, {
       method: 'PUT',
@@ -167,7 +151,7 @@ function closeTicket(ticket){// call  PUT /api/tickets/<id>/closeTicket
         // analyze the cause of error
         response.json()
           .then((message) => { reject(message); }) // error message in the response body
-          .catch(() => { reject({ error: "Cannot parse server response." }) }); // something else
+          .catch(() => { reject({ error: "Cannot parse server response." }) });
       }
     }).catch(() => { reject({ error: "Cannot communicate with the server." }) }); // connection errors
   });
@@ -212,6 +196,7 @@ async function getUserInfo() {
 }
 
 async function getAuthToken() {
+  // Call GET /api/auth-token
   const response = await fetch(URL+'/auth-token', {
     credentials: 'include'
   });
@@ -223,33 +208,18 @@ async function getAuthToken() {
   }
 }
 
-/*async function getEstimation(authToken, ticket) {
-  // retrieve info from an external server, where info can be accessible only via JWT token
-  const response = await fetch(estimation_URL+`/estimationTime`, {
-    method: 'POST',
-    headers: { 
-      'Authorization': `Bearer ${authToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(ticket),
-  });
-  const info = await response.json();
-  if (response.ok) {
-    return info.estimation;
-  } else {
-    throw info;  // expected to be a json object (coming from the server) with info about the error
-  }
-}*/
-
 async function getEstimations(authToken, tickets) {
+  // Call POST /api/estimations -- Second Server
 
-  const payload = tickets.map(ticket => ({
+  // Ask the estimation only for open tickets
+  const openTickets = tickets.filter(ticket => ticket.state === 1);
+
+  const payload = openTickets.map(ticket => ({
     category: ticket.category,
     title: ticket.title,
     id: ticket.id
   }));
 
-  // Effettua la richiesta al server esterno
   const response = await fetch(estimation_URL + `/estimations`, {
     method: 'POST',
     headers: {
@@ -262,7 +232,7 @@ async function getEstimations(authToken, tickets) {
   const info = await response.json();
 
   if (response.ok) {
-    return info; // Supponiamo che info sia già un array di oggetti con id e estimation
+    return info; //  Array with id and estimations
   } else {
     throw info; // Expected to be a json object (coming from the server) with info about the error
   }
@@ -270,7 +240,7 @@ async function getEstimations(authToken, tickets) {
 
 
 const API = {
-    getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories, addAnswer, getTicketById, 
+    getAllTickets, getAllAnswersForTicket, addTicket, getAllCategories, addAnswer, 
     editTicket, closeTicket, logIn, logOut, getUserInfo, getAllTicketsGeneric, getAuthToken, getEstimations
 };
 export default API;

@@ -47,8 +47,6 @@ exports.listTickets = () => {
         reject(err);
         return;
       }
-      /*const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
-      resolve(tickets);*/
       const tickets = rows.map((e) => convertTicketFromDbRecord(e));
       resolve(tickets);
     });
@@ -69,39 +67,6 @@ exports.listTicketsGeneric = () => {
     });
   });
 };
-// get tickets filtering by category
-exports.listTicketsByCategory = (category) => {
-  return new Promise((resolve, reject) => {
-    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description, Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId WHERE category = ?';
-    db.all(sql, [category], (err, rows) => {
-      if (err) {
-        reject();
-        return;
-      }
-     /* const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
-      resolve(tickets);*/
-      const tickets = rows.map((e) => convertTicketFromDbRecord(e));
-      resolve(tickets);
-    });
-  });
-};
-
-// get tickets filtering by state
-exports.listTicketsByState = (state) => {
-  return new Promise((resolve, reject) => {
-    const sql = 'SELECT ticketId, state, category, ownerId, title, timestamp, description Users.username FROM Tickets JOIN Users ON Tickets.ownerId = Users.userId WHERE state = ?';
-    db.all(sql, [state], (err, rows) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-     /* const tickets = rows.map((e) => ({ id: e.ticketId, state: e.state, category: e.category, ownerId: e.ownerId, title: e.title, timestamp: dayjs(e.timestamp), description: e.description, username: e.username}));
-      resolve(tickets);*/
-      const tickets = rows.map((e) => convertTicketFromDbRecord(e));
-      resolve(tickets);
-    });
-  });
-};
 
 // get the ticket identified by {id}
 exports.getTicket = (id) => {
@@ -115,39 +80,8 @@ exports.getTicket = (id) => {
       if (row == undefined) {
         resolve({error: 'Ticket not found.'});
       } else {
-        
-    /*    const ticket = { 
-          id: row.ticketId, 
-          state: row.state, 
-          category: row.category, 
-          ownerId: row.ownerId, 
-          title: row.title, 
-          timestamp: dayjs(row.timestamp), 
-          description: row.description,
-          username: row.username
-        };      */  
-       // console.log(`${row.timestamp} inside getTicket`);
         resolve(convertTicketFromDbRecord(row));
       }
-    });
-  });
-};
-
-// get all answers
-exports.listAnswers = () => {
-  return new Promise((resolve, reject) => {
-    const sql = 'SELECT answerId, authorId, ticketId, timestamp, answer FROM answers';
-
-    db.all(sql, (err, rows) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      /*const answers = rows.map((e) => ({answerId: e.answerId, authorId: e.authorId, ticketId: e.ticketId, timestamp: dayjs(e.timestamp), answer: e.answer}));
-      resolve(answers);*/
-      const answers = rows.map((e) => convertAnswerFromDbRecord(e));
-      resolve(answers);
     });
   });
 };
@@ -162,10 +96,6 @@ exports.listAnswersByTicket = (ticketId) => {
         reject(err);
         return;
       }
-    /*  const prova = rows.map((e) => convertAnswerFromDbRecord(e));
-      console.log(prova);
-      const answers = rows.map((e) => ({answerId: e.answerId, authorId: e.authorId, ticketId: e.ticketId, timestamp: dayjs(e.timestamp), answer: e.answer, username: e.username}));
-      resolve(answers);*/
       const answers = rows.map ((e) => convertAnswerFromDbRecord(e));
       resolve(answers);
     });
@@ -184,10 +114,7 @@ exports.getAnswer = (id) => {
       if (row == undefined) {
         resolve({error: 'Answer not found.'});
       } else {
-        
-       // const answer = {answerId: row.answerId, authorId: row.authorId, ticketId: row.ticketId, timestamp: dayjs(row.timestamp), answer: row.answer, username: row.username};
-        resolve(convertAnswerFromDbRecord(row));
-        
+        resolve(convertAnswerFromDbRecord(row)); 
       }
     });
   });
@@ -196,7 +123,6 @@ exports.getAnswer = (id) => {
 // add a new ticket, return the newly created object, re-read from DB
 exports.createTicket = (ticket) => {
   return new Promise((resolve, reject) => {
-    //console.log(`${ticket.timestamp} inside db`);
     const sql = 'INSERT INTO Tickets(state, category, ownerId, title, timestamp, description) VALUES(?, ?, ?, ?, DATETIME(?), ?)';
     db.run(sql, [ticket.state, ticket.category, ticket.ownerId, ticket.title, ticket.timestamp, ticket.description], function (err) {
       if (err) {
@@ -223,6 +149,7 @@ exports.createAnswer = (answer) => {
   });
 };
 
+// Edit a ticket
 exports.updateTicket = (id, ticket) => {
   return new Promise((resolve, reject) => {
     const sql = 'UPDATE Tickets SET state = ?, category = ?, ownerId = ?, title = ?, timestamp = ?, description = ? WHERE ticketId = ?';

@@ -18,7 +18,6 @@ function LoginForm(props) {
         navigate('/');
       })
       .catch(err => {
-        // NB: Generic error message, should not give additional info (e.g., if user exists etc.)
         setErrorMessage('Wrong username or password');
       })
   }
@@ -28,7 +27,6 @@ function LoginForm(props) {
       setErrorMessage('');
       const credentials = { username, password };
 
-      // SOME VALIDATION, ADD MORE if needed (e.g., check if it is an email if an email is required, etc.)
       let valid = true;
       if(username === '' || password === '')
           valid = false;
@@ -37,7 +35,6 @@ function LoginForm(props) {
       {
         doLogIn(credentials);
       } else {
-        // TODO: show a better explanation depending on the error.
         setErrorMessage('Invalid content in form.')
       }
   };

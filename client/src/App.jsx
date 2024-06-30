@@ -3,10 +3,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 import { useEffect, useState } from 'react';
-import { Col, Container, Row, Navbar, Button, Spinner, Alert } from 'react-bootstrap';
-import { BrowserRouter, Routes, Route, Outlet, Link, Navigate, useNavigate } from 'react-router-dom'; 
+import { Container } from 'react-bootstrap';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'; 
 import { MyTicketList } from './components/MyTicket.jsx';
-import { MyTicketForm } from './components/MyTicketForm.jsx'
 import { NotFoundLayout, GenericLayout, AddLayout, EditLayout, LoginLayout} from './components/Layout.jsx';
 import API from './API.js';
 
@@ -21,14 +20,12 @@ function AppWithRouter(props) {
   const [tickets, setTickets] = useState([]);
   const [dirty, setDirty] = useState(true);
   const [categories, setCategories] = useState([]);
-  const [hasLoggedOut, setHasLoggedOut] = useState(false); // New state for logout tracking
+  const [hasLoggedOut, setHasLoggedOut] = useState(false); // State for logout tracking, used for delete answers list
   const [ errorMsg, setErrorMsg ] = useState('');
 
+  // State to handle tokens and call to API for estimations
   const [authToken, setAuthToken] = useState(null);
-  const [refreshToken, setRefreshToken] = useState(false);
-
-
-  const [estimate, setEstimate] = useState(false);
+  const [estimate, setEstimate] = useState(false);   // trigger useEffect to compute estimations
   const [estimations, setEstimations] = useState([]);
   
   const navigate = useNavigate();
@@ -61,10 +58,8 @@ function AppWithRouter(props) {
         setLoggedIn(true);
         setUser(user);
         renewToken();
-       // setRefreshToken(true);
       } catch(err) {
         // NO need to do anything: user is simply not yet authenticated
-        //handleError(err);
       }
     };
     checkAuth();
@@ -78,8 +73,9 @@ function AppWithRouter(props) {
           setTickets(fullTicketList);
           const categoriesList = await API.getAllCategories();
           setCategories(categoriesList);
+
           if(user && user.isAdmin){
-            setEstimate(true); // need to compute estimations
+            setEstimate(true); // Need to compute estimations
           }
         } else if (!loggedIn && dirty) {
           const genericTicketList = await API.getAllTicketsGeneric();
@@ -93,30 +89,6 @@ function AppWithRouter(props) {
 
     fetchTickets(); 
   }, [dirty, loggedIn]);
-
- /* useEffect(()=> {
-    const getTokenValid = async() => {
-      try {
-        // here you have the user info, if already logged in
-        API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch((err) => handleError(err));
-      } catch(err) {
-        // NO need to do anything: user is simply not yet authenticated
-        //handleError(err);
-      }
-    };
-    getTokenValid();
-  }, []);*/
-
- /* useEffect( () => { 
-    if(refreshToken){
-        API.getAuthToken().then((resp) => {
-          setAuthToken(resp.token);
-          setRefreshToken(false);
-        }).catch((err) => handleError(err));
-        
-    }    
-    }, [refreshToken]);*/
-
 
     useEffect( () => { 
       if(user && estimate){
@@ -155,8 +127,6 @@ function AppWithRouter(props) {
       setUser(user);
       setLoggedIn(true);
       setDirty(true);
-      //API.getAuthToken().then((resp) => setAuthToken(resp.token)).catch((err) => handleError(err));
-      //setRefreshToken(true);
       renewToken();
       setHasLoggedOut(false);
     } catch (err) {
@@ -169,7 +139,7 @@ function AppWithRouter(props) {
     <Container fluid>
         <Routes>
           <Route path="/" element={<GenericLayout loggedIn={loggedIn} user={user} logout={doLogOut} errorMsg={errorMsg} setErrorMsg={setErrorMsg} />} >
-            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} handleError={handleError} setRefreshToken={setRefreshToken}  refreshToken={refreshToken} estimations={estimations}/> } />
+            <Route index element={ <MyTicketList tickets={tickets} closeTicket={closeTicket} user={user} loggedIn={loggedIn} hasLoggedOut={hasLoggedOut} authToken={authToken} handleError={handleError} estimations={estimations}/> } />
             <Route path="/add" element={<AddLayout addTicket={addTicket} categories={categories} user={user} authToken={authToken} renewToken={renewToken} />} />
             <Route path="/edit/:ticketId" element={<EditLayout tickets={tickets} categories={categories} editTicket={editTicket}/>} />
             <Route path="*" element={<NotFoundLayout />} />
@@ -188,7 +158,5 @@ function App() {
     </BrowserRouter>
   );
 }
-
-
 
 export default App

@@ -1,11 +1,10 @@
 import React from 'react';
-import { Container, Row, Col, Badge, Button, Form } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container, Row, Col, Badge, Button } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { MyAnswerList } from './MyAnswer';
-import TextareaAutosize from 'react-textarea-autosize';
 import API from '../API';
+import { MyAnswerList } from './MyAnswer';
 import { MyButtonGroup } from './MyButtonGroup';
 import { MyAnswerForm } from './MyAnswerForm';
 
@@ -18,17 +17,18 @@ function MyTicket(props) {
   const [dirty, setDirty] = useState(false);
   const [newAnswer, setNewAnswer] = useState("");
   const [errorMsg, setErrorMsg] = useState('');
-  const [estimation, setEstimation] = useState("");
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
+    
+    // Validate MyAnswerForm submission
     if (newAnswer.length === 0) {
       setErrorMsg("Empty text fields are not allowed!");
     } else {
       const answer = {
         answer: newAnswer
       }
+      // Delete the content in the form and any error messagge
       deleteFormInformation();
       API.addAnswer(answer, ticket.id).then(() => setDirty(true)).catch((err) => props.handleError(err));
     }
@@ -39,19 +39,22 @@ function MyTicket(props) {
     setErrorMsg("");
   }
 
+  // If the user clicks on Show Less:
   const showingLess = () => {
-    setShowMore(false);
-    setJoinConversation(false);
-    deleteFormInformation();
+    setShowMore(false);          // Change the button text
+    setJoinConversation(false);  // Make the form disappear
+    deleteFormInformation();     // Delete the form content
   };
 
+  // If the user clicks on Show More:
   const showingMore = () => {
-    setShowMore(true); 
-    setDirty(true);
+    setShowMore(true);           // Change the button text
+    setDirty(true);              // Fetch the answers
   };
 
+   // Get answers and re-render the component
   useEffect(() => {
-  if (dirty && props.loggedIn) {     // in realtà non servirebbe isLoggedIn perchè non vedi il bottone!
+  if (dirty && props.loggedIn) {         
       API.getAllAnswersForTicket(ticket.id)
         .then((answerList) => setAnswers(answerList))
         .catch((err) => props.handleError(err));
@@ -63,18 +66,9 @@ function MyTicket(props) {
   useEffect(() => {
     if (props.hasLoggedOut) {
       setAnswers([]);
-      setEstimation("");
       showingLess();
     }
   }, [props.hasLoggedOut]);
-
- /* useEffect(() => {
-    if(props.authToken && props.loggedIn && props.user.isAdmin && ticket.state && !props.refreshToken) // dirty per evitare che tutti richiedano estimation???
-      API.getEstimation(props.authToken,{category: ticket.category, title: ticket.title})
-      .then((estimation) => setEstimation(estimation))
-      .catch(()=>props.setRefreshToken(true)); // devo richiedere token
-
-  }, [props.authToken, ticket.state]);*/
 
   return (
     <Container className="mb-4"> {/* Add margin-bottom here for spacing */}
@@ -82,6 +76,7 @@ function MyTicket(props) {
       <Row className="bg-dark text-white p-3" style={{ backgroundColor: 'darkblue' }}>
       <Col xs={9}>
          <b>{`${ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)} - ${ticket.username}`}</b>
+         {/* If user is admin and the ticket is open, show the estimation */}
          {props.user.isAdmin && props.estimation && ticket.state ? <span>{` - ${props.estimation} hours`}</span> : ''}
       </Col>
         <Col xs={3} className="text-end">
@@ -159,6 +154,7 @@ function MyTicketList(props) {
       )}
       {/* Ticket List */}
       {props.tickets.map((ticket, index) => {
+        // If the ticket is not closed and the user is an admin, find the corresponding estimation in the list
         const estimationObj = props.estimations.find(est => est.id === ticket.id);
         const estimation = estimationObj ? estimationObj.estimation : null;
         return (
@@ -170,9 +166,7 @@ function MyTicketList(props) {
             loggedIn={props.loggedIn} 
             hasLoggedOut={props.hasLoggedOut} 
             authToken={props.authToken}
-            setRefreshToken={props.setRefreshToken} 
             handleError={props.handleError} 
-            refreshToken={props.refreshToken}
             estimation={estimation} 
           />
         );

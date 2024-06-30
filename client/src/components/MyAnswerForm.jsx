@@ -18,7 +18,9 @@ function MyAnswerForm(props) {
         />
         {errorMsg && <Form.Label className="text-danger">{errorMsg}</Form.Label>}
       </Form.Group>
+      {/* Content validation and API call in MyTicket component*/}
       <Button variant="dark my-1" type="submit">Submit</Button>
+      {/* Make the form disappear and delete its informations */}
       <Button variant="secondary my-1 mx-1" onClick={() => { setJoinConversation(false); deleteFormInformation(); }}>
         Close
       </Button>

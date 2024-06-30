@@ -16,7 +16,6 @@ function MyTicketForm(props) {
     const [errorMsg, setErrorMsg] = useState('');
     const [estimation, setEstimation] = useState("");
     const [estimate, setEstimate] = useState(false);
-    const [retry, setRetry] = useState(false); // state for retrying API call
 
     const handleClose = () => setShow(false);
 
@@ -25,6 +24,7 @@ function MyTicketForm(props) {
             category: category, 
             title: title.trim(),  
             description: description,
+            state: 1  // To be consistent with the getEstimations API, the state value will be set on the back end
         };
 
         if (newTicket.title.length === 0) {
@@ -40,28 +40,12 @@ function MyTicketForm(props) {
     }
 
     useEffect(() => {
-        const fetchEstimation = async () => {
-            try {
-                const estimation = await API.getEstimations(props.authToken, [ticket]);
-                setEstimation(estimation[0].estimation);
-                setShow(true);
-            } catch (error) {
-                props.renewToken();
-                setRetry(true);
-            }
-        };
-
-        if (props.user && estimate && props.authToken && ticket) {
-            fetchEstimation();
-            setEstimate(false);
-        }
-
-        // Retry the API call after token renewal
-        if (retry && props.authToken && ticket) {
-            fetchEstimation();
-            setRetry(false);
-        }
-    }, [estimate, props.authToken, retry]);
+        if(props.authToken && props.user && estimate) // Show the modal for confirmation only after receiving the estimation
+          API.getEstimations(props.authToken,[ticket])
+          .then((estimation) => { setEstimation(estimation[0].estimation); setShow(true); setEstimate(false);})
+          .catch(()=>props.renewToken()); // token expired, ask a new one and then retry the API
+    
+      }, [props.authToken, estimate]);
 
     return (
         <>
@@ -86,11 +70,11 @@ function MyTicketForm(props) {
                 <Form.Group className="mb-3">
                     <Form.Label><b>Description</b></Form.Label>
                     <TextareaAutosize
-                        className="form-control" // Bootstrap class for styling
+                        className="form-control"
                         name="description"
                         value={description}
                         onChange={(event) => setDescription(event.target.value)}
-                        minRows={3} // Minimum number of rows
+                        minRows={3}
                     />
                 </Form.Group>
 

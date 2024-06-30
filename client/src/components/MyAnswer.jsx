@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Container } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function MyAnswer(props) {
@@ -10,6 +10,7 @@ function MyAnswer(props) {
         <Card.Body >
           <Card.Subtitle className="mb-2 text-muted">{answer.username}</Card.Subtitle>
           <Card.Text>
+            {/* Using React.Fragment to keep text formatting */}
             {answer.answer.replace(/\\n/g, '\n').split('\n').map((string,index) => (
                 <React.Fragment key={index}>
                    {string}

@@ -9,6 +9,7 @@ function MyButtonGroup(props) {
     <>
       {loggedIn && (
         <>
+          {/* Button for edit visible only by admins */}
           {user.isAdmin ? (
             <Link to={`/edit/${ticketId}`}>
               <Button variant="warning" size="sm">
@@ -17,6 +18,7 @@ function MyButtonGroup(props) {
             </Link>
           ) : "" }
           
+          {/* Button for closing the ticket visible only by admins and ticket's owner */}
           {state && (user.userId === ownerId || user.isAdmin) ?
            (
             <Button variant="danger mx-1" size="sm" onClick={() => closeTicket({ id: ticketId })}>
@@ -25,6 +27,7 @@ function MyButtonGroup(props) {
           ) : "" }
         </>
       )}
+      {/* Buttons to make appear/disappear answers block texts, visible only by logged-in users */}
       {loggedIn && (
         showMore ? (
           <Button variant="secondary" size="sm" onClick={showingLess}>

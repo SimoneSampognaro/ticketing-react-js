@@ -73,8 +73,10 @@ INSERT INTO Tickets (state, category, ownerId, title, timestamp, description) VA
 -- Populate Answers table
 INSERT INTO Answers (authorId, ticketId, timestamp, answer) VALUES
 (2, 3, '2024-06-29 12:30:00', 'We are considering adding this feature in the next update.\nStay tuned for updates.'),
+(4, 3, '2024-06-29 13:30:00', 'I am currently working on it.\nLet me cook!'),
 (4, 4, '2024-06-28 12:30:00', 'The change has been made.\nJohn Doe is now the account administrator.'),
 (1, 5, '2024-06-29 13:00:00', 'We are looking into the payment issue.\nWe will resolve it soon.'),
+(2, 5, '2024-06-29 13:45:00', 'Update: Our database is not working.\nWe are working on it.'),
 (3, 6, '2024-06-28 13:00:00', 'Here are the details of the different pricing plans we offer:\n1. Basic\n2. Standard\n3. Premium.');
 
 COMMIT;

@@ -23,6 +23,7 @@ function MyModal(props) {
           <p><b>Estimation time in {isAdmin ? "hours" : "days"}:</b> {estimation}</p>
           <p><b>Username: </b>{username}</p>
           <p><b>Category: </b>{ticket.category}</p>
+          {/* Using React.Fragment to keep text formatting */}
           <p><b>Description: </b>{ticket.description.split("\n").map((string, index) => (
             <React.Fragment key={index}>
               {string}
@@ -35,6 +36,7 @@ function MyModal(props) {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
+          {/* Submit the ticket to the server */}
           <Button variant="primary" onClick={() => { props.addTicket(ticket) }}>
             Confirm
           </Button>

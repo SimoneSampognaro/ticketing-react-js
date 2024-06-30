@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function MyTicketEdit(props) {
     const { ticketId } = useParams();
+    // Retrieve the ID from the URL and search for the corresponding ticket in the list.
     const objToEdit = ticketId && props.tickets.find(e => e.id === parseInt(ticketId));
 
     const navigate = useNavigate();
@@ -20,14 +21,16 @@ function MyTicketEdit(props) {
 
     const handleSubmit = () => {
         if (objToEdit) {
+
+            const actualCategory = category === "" ? objToEdit.category : category;
             const hasStateChanged = radioValue !== objToEdit.state.toString();
-            const hasCategoryChanged = category !== objToEdit.category;
+            const hasCategoryChanged = actualCategory !== objToEdit.category;
 
             if (hasStateChanged || hasCategoryChanged) {
-                props.editTicket({ id: ticketId, category: category, state: radioValue });
+                props.editTicket({ id: ticketId, category: actualCategory, state: radioValue });
             }
         }
-        navigate("/"); // admin has not modified anything, so just go back to home page without refreshing tickets
+        navigate("/"); // The admin has not modified anything; just go back to the home page without refreshing the tickets.
     };
 
     return (
@@ -73,6 +76,7 @@ function MyTicketEdit(props) {
                         <Col>
                             <div className="fs-5">
                                 <strong>Description:</strong><br />
+                                {/* Using React.Fragment to keep text formatting */}
                                 {ticket.description.replace(/\\n/g, '\n').split("\n").map((string, index) => (
                                     <React.Fragment key={index}>
                                         {string}
@@ -135,6 +139,7 @@ function MyTicketEdit(props) {
                 </>
             ) : (
                 <Row className="mb-3">
+                    {/* Ticket not found */}
                     <Col>
                         <div className="fs-5 text-danger">
                             Ticket not found or invalid ticket ID.
